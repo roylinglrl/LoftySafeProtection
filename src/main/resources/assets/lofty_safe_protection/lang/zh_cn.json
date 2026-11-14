@@ -1,0 +1,21 @@
+{
+  "container.lofty_safe_protection": "安全箱",
+  "gui.lofty_safe_protection.deposit_experience": "存入经验",
+  "gui.lofty_safe_protection.withdraw_experience": "取出经验",
+  "item.lofty_safe_protection.safe_box": "安全箱",
+  "item.lofty_safe_protection.inventory_container": "背包内容器",
+  "item.lofty_safe_protection.map_pouch": "地图包",
+  "itemGroup.lofty_safe_protection": "安全箱",
+  "item.lofty_safe_protection.sized": "安全箱 %s×%s",
+  "item.lofty_safe_protection.stone_safe_box": "石头安全箱",
+  "item.lofty_safe_protection.copper_safe_box": "铜安全箱",
+  "item.lofty_safe_protection.gold_safe_box": "金安全箱",
+  "item.lofty_safe_protection.diamond_safe_box": "钻石安全箱",
+  "item.lofty_safe_protection.emerald_safe_box": "绿宝石安全箱",
+  "tooltip.lofty_safe_protection.capacity": "容量：%s 格（%s×%s）",
+  "tooltip.lofty_safe_protection.empty_before_unequip": "请先清空安全箱再卸载",
+  "tooltip.lofty_safe_protection.incompatible": "该物品不兼容安全箱",
+  "tooltip.lofty_safe_protection.usage": "已用：%s/%s",
+  "gui.lofty_safe_protection.sort": "整理",
+  "gui.lofty_safe_protection.deposit_matching": "存入同类物品"
+}

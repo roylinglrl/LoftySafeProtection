@@ -1,0 +1,101 @@
+plugins { id 'net.neoforged.moddev' version '2.0.148' }
+group='net.royling.lsp'
+version='0.2.0'
+base { archivesName='lofty_safe_protection-neoforge-1.21.1' }
+java.toolchain.languageVersion=JavaLanguageVersion.of(21)
+repositories {
+    maven {
+        url = uri('https://maven.latvian.dev/releases')
+        content { includeGroup 'dev.latvian.mods'; includeGroup 'dev.latvian.apps' }
+    }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = 'JaredMaven'
+                url = uri('https://maven.blamejared.com/')
+            }
+        }
+        filter { includeGroup 'mezz.jei' }
+    }
+    exclusiveContent {
+        forRepository { mavenCentral() }
+        filter { includeGroupByRegex 'org\\..*'; includeGroupByRegex 'com\\.google.*'; includeGroupByRegex 'io\\..*'; includeGroup 'commons-io'; includeGroup 'commons-codec'; includeGroup 'it.unimi.dsi' }
+    }
+}
+configurations {
+    localRuntime {
+        canBeConsumed = false
+        canBeResolved = false
+    }
+    runtimeClasspath.extendsFrom localRuntime
+}
+
+dependencies {
+    compileOnly('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
+    compileOnly('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
+    localRuntime('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
+    localRuntime('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
+    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:${jei_version}")
+    localRuntime("mezz.jei:jei-1.21.1-neoforge:${jei_version}") {
+        transitive = false
+    }
+}
+
+neoForge {
+    version='21.1.265'
+    runs {
+        client {
+            client()
+            gameDirectory=file('run-client')
+            programArguments.addAll '--username', 'SafeBoxDev', '--width', '1100', '--height', '720'
+        }
+        server { server(); programArgument '--nogui'; gameDirectory=file('run-server') }
+    }
+    mods { lofty_safe_protection { sourceSet sourceSets.main } }
+    unitTest {
+        enable()
+        testedMod = mods.lofty_safe_protection
+    }
+}
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+sourceSets.test {
+    compileClasspath += sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
+}
+tasks.register('prepareKubeJsExamples', Copy) {
+    from 'examples/kubejs'
+    into 'run-client/kubejs'
+}
+
+tasks.named('runClient') { dependsOn 'prepareKubeJsExamples' }
+tasks.register('prepareDevClient') { dependsOn 'classes', 'prepareClientRun', 'prepareKubeJsExamples' }
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testImplementation 'com.google.code.gson:gson:2.10.1'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+def isolatedTestClasses = new File(System.getProperty('java.io.tmpdir'),
+        "${rootProject.name}-test-classes-${Integer.toHexString(projectDir.absolutePath.hashCode())}")
+def stagedTestDependencies = sourceSets.test.runtimeClasspath.filter {
+    it.name.endsWith('.jar') && !java.nio.charset.StandardCharsets.US_ASCII.newEncoder().canEncode(it.absolutePath)
+}
+tasks.register('stageTestClasses', Sync) {
+    dependsOn 'testClasses'
+    from sourceSets.main.output
+    from sourceSets.test.output
+    from(stagedTestDependencies) { into 'runtime' }
+    into isolatedTestClasses
+}
+tasks.withType(Test).configureEach {
+    useJUnitPlatform()
+    inputs.dir('examples/kubejs')
+    systemProperty 'lsp.testProjectDir', projectDir.absolutePath
+    dependsOn 'stageTestClasses'
+    include '**/*Test.class'
+    testClassesDirs = files(isolatedTestClasses)
+    classpath = files(isolatedTestClasses) + files(stagedTestDependencies.elements.map { locations ->
+        locations.collect { new File(isolatedTestClasses, "runtime/${it.asFile.name}") }
+    }) + (sourceSets.test.runtimeClasspath - sourceSets.main.output - sourceSets.test.output - stagedTestDependencies)
+}

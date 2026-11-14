@@ -1,0 +1,21 @@
+{
+  "container.lofty_safe_protection": "Safe Box",
+  "gui.lofty_safe_protection.deposit_experience": "Deposit experience",
+  "gui.lofty_safe_protection.withdraw_experience": "Withdraw experience",
+  "item.lofty_safe_protection.safe_box": "Safe Box",
+  "item.lofty_safe_protection.inventory_container": "Inventory Container",
+  "item.lofty_safe_protection.map_pouch": "Map Pouch",
+  "itemGroup.lofty_safe_protection": "Safe Boxes",
+  "item.lofty_safe_protection.sized": "Safe Box %s×%s",
+  "item.lofty_safe_protection.stone_safe_box": "Stone Safe Box",
+  "item.lofty_safe_protection.copper_safe_box": "Copper Safe Box",
+  "item.lofty_safe_protection.gold_safe_box": "Gold Safe Box",
+  "item.lofty_safe_protection.diamond_safe_box": "Diamond Safe Box",
+  "item.lofty_safe_protection.emerald_safe_box": "Emerald Safe Box",
+  "tooltip.lofty_safe_protection.capacity": "Capacity: %s slots (%s×%s)",
+  "tooltip.lofty_safe_protection.empty_before_unequip": "Empty the safe box before unequipping it",
+  "tooltip.lofty_safe_protection.incompatible": "This item is incompatible with the safe box",
+  "tooltip.lofty_safe_protection.usage": "Used: %s/%s",
+  "gui.lofty_safe_protection.sort": "Sort",
+  "gui.lofty_safe_protection.deposit_matching": "Deposit matching items"
+}

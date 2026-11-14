@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "package": "net.royling.lsp.lofty_safe_protection.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "ContainerMenuMixin",
+    "InventoryMenuMixin"
+  ],
+  "client": [
+    "ContainerScreenMixin",
+    "RecipeBookScreenMixin",
+    "CreativeModeInventoryScreenMixin",
+    "SlotMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

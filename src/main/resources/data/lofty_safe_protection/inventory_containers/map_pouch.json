@@ -1,0 +1,14 @@
+{
+  "id": "lofty_safe_protection:map_pouch",
+  "translation_key": "item.lofty_safe_protection.map_pouch",
+  "texture": "lofty_safe_protection:textures/item/map_pouch.png",
+  "capacity": {
+    "columns": 4,
+    "rows": 4
+  },
+  "filter": {
+    "mode": "whitelist",
+    "items": ["minecraft:map", "minecraft:filled_map"],
+    "tags": []
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "lofty_safe_protection:case_3x4",
+  "texture": "lofty_safe_protection:textures/safebox/emerald_safe_box.png",
+  "capacity": {
+    "columns": 4,
+    "rows": 3
+  },
+  "experience": { "enabled": true, "capacity": 500 },
+  "filter": {
+    "mode": "blacklist",
+    "items": [],
+    "tags": []
+  },
+  "translation_key": "item.lofty_safe_protection.emerald_safe_box"
+}

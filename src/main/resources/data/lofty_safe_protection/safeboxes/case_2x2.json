@@ -1,0 +1,14 @@
+{
+  "id": "lofty_safe_protection:case_2x2",
+  "texture": "lofty_safe_protection:textures/safebox/stone_safe_box.png",
+  "capacity": {
+    "columns": 2,
+    "rows": 2
+  },
+  "filter": {
+    "mode": "blacklist",
+    "items": [],
+    "tags": []
+  },
+  "translation_key": "item.lofty_safe_protection.stone_safe_box"
+}
