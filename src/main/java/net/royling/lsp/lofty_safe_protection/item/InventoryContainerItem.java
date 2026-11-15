@@ -24,17 +24,17 @@ public final class InventoryContainerItem extends Item {
         return false;
     }
 
-    @Override
-    public boolean canFitInsideContainerItems(ItemStack stack) {
-        return false;
-    }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, net.minecraft.world.level.Level level, List<Component> lines, TooltipFlag flag) {
         var contents = ContainerContentsSummary.fromItem(stack);
         if (contents != null) {
             lines.add(SafeBoxTooltips.capacity(contents.rows(), contents.columns()));
             lines.add(SafeBoxTooltips.usage(contents.used(), contents.capacity()));
         }
+    }
+    @Override
+    public void initializeClient(java.util.function.Consumer<net.minecraftforge.client.extensions.common.IClientItemExtensions> consumer) {
+        consumer.accept(net.royling.lsp.lofty_safe_protection.client.LoftySafeProtectionClient.itemExtension());
     }
 }

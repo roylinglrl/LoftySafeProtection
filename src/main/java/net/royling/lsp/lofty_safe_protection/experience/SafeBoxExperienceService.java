@@ -31,7 +31,7 @@ public final class SafeBoxExperienceService {
         if (delta == 0) return;
         int remaining = (int) (before - delta);
         int level = ExperienceMath.levelFor(remaining);
-        player.totalExperience = (int) Math.clamp((long) player.totalExperience - delta, 0, Integer.MAX_VALUE);
+        player.totalExperience = (int) Math.max(0L, Math.min(Integer.MAX_VALUE, (long) player.totalExperience - delta));
         player.setExperienceLevels(level);
         player.setExperiencePoints((int) (remaining - ExperienceMath.atLevel(level)));
         state.setExperience(state.experience() + delta);

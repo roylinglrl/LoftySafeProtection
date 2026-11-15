@@ -11,7 +11,7 @@ public interface InventoryContainerMenuAccess {
     void lsp$attachInventoryContainer(Player player);
 
     default InventoryItemContainer lsp$inventoryContainer() {
-        return lsp$inventoryContainers().isEmpty() ? null : lsp$inventoryContainers().getFirst();
+        return lsp$inventoryContainers().isEmpty() ? null : lsp$inventoryContainers().get(0);
     }
 
     default int lsp$hostSlotCount() {

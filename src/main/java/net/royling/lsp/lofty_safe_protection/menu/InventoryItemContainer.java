@@ -1,6 +1,5 @@
 package net.royling.lsp.lofty_safe_protection.menu;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
@@ -8,8 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ItemContainerContents;
+import net.royling.lsp.lofty_safe_protection.storage.legacy.ItemContainerContents;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerDefinition;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
 import net.royling.lsp.lofty_safe_protection.storage.InventoryContainerBinding;
@@ -22,6 +20,8 @@ public final class InventoryItemContainer extends SimpleContainer {
     private int sourceSlot = -1;
     private int columns;
     private int rows;
+    private boolean loading;
+    private java.util.List<ItemStack> getItems() { return java.util.stream.IntStream.range(0, 54).mapToObj(this::getItem).toList(); }
 
     public InventoryItemContainer(Player owner, AbstractContainerMenu menu, int firstSlot) {
         super(54);
@@ -61,13 +61,15 @@ public final class InventoryItemContainer extends SimpleContainer {
         ItemStack stack = menu.slots.get(slot).getItem();
         var definition = InventoryContainerManager.definition(stack);
         if (definition == null || stack.getCount() != 1) return;
-        ItemContainerContents contents = stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        ItemContainerContents contents = ItemContainerContents.fromStack(stack);
         if (contents.getSlots() > 54) return;
         close();
         binding = new InventoryContainerBinding(menu.slots.get(slot));
         sourceSlot = slot;
-        contents.copyInto(getItems());
-        CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
+        loading = true;
+        try { for (int cell = 0; cell < 54; cell++) super.setItem(cell, contents.getStackInSlot(cell)); }
+        finally { loading = false; }
+        CompoundTag tag = stack.getOrCreateTag().copy();
         columns = isEmpty() ? definition.columns() : tag.getInt("ContainerColumns");
         rows = isEmpty() ? definition.rows() : tag.getInt("ContainerRows");
         if (columns < 1 || columns > 9) columns = definition.columns();
@@ -87,7 +89,7 @@ public final class InventoryItemContainer extends SimpleContainer {
 
     public static boolean canOpen(Slot slot, Player player) {
         ItemStack stack = slot.getItem();
-        return !(slot.container instanceof InventoryItemContainer) && slot.isActive() && !slot.isFake()
+        return !(slot.container instanceof InventoryItemContainer) && slot.isActive()
                 && stack.getCount() == 1 && InventoryContainerManager.definition(stack) != null
                 && slot.mayPickup(player) && slot.mayPlace(stack);
     }
@@ -97,13 +99,13 @@ public final class InventoryItemContainer extends SimpleContainer {
         columns = 0;
         rows = 0;
         binding = null;
-        getItems().clear();
+        clearContent();
     }
 
     @Override
     public void setChanged() {
         super.setChanged();
-        if (!(owner instanceof ServerPlayer) || !isOpen()) return;
+        if (loading || !(owner instanceof ServerPlayer) || !isOpen()) return;
         if (binding == null || !binding.write(getItems(), columns, rows)) close();
     }
 

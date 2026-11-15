@@ -1,74 +1,49 @@
-plugins { id 'net.neoforged.moddev' version '2.0.148' }
+plugins {
+    id 'net.minecraftforge.gradle' version '6.0.36'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
+}
 group='net.royling.lsp'
 version='0.1.0'
-base { archivesName='lofty_safe_protection-neoforge-1.21.1' }
-java.toolchain.languageVersion=JavaLanguageVersion.of(21)
-repositories {
-    maven {
-        url = uri('https://maven.latvian.dev/releases')
-        content { includeGroup 'dev.latvian.mods'; includeGroup 'dev.latvian.apps' }
-    }
-    exclusiveContent {
-        forRepository {
-            maven {
-                name = 'JaredMaven'
-                url = uri('https://maven.blamejared.com/')
-            }
-        }
-        filter { includeGroup 'mezz.jei' }
-    }
-    exclusiveContent {
-        forRepository { mavenCentral() }
-        filter { includeGroupByRegex 'org\\..*'; includeGroupByRegex 'com\\.google.*'; includeGroupByRegex 'io\\..*'; includeGroup 'commons-io'; includeGroup 'commons-codec'; includeGroup 'it.unimi.dsi' }
-    }
-}
-configurations {
-    localRuntime {
-        canBeConsumed = false
-        canBeResolved = false
-    }
-    runtimeClasspath.extendsFrom localRuntime
-}
-
-dependencies {
-    compileOnly('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
-    compileOnly('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
-    localRuntime('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
-    localRuntime('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
-    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:${jei_version}")
-    localRuntime("mezz.jei:jei-1.21.1-neoforge:${jei_version}") {
-        transitive = false
-    }
-}
-
-neoForge {
-    version='21.1.265'
+base { archivesName='lofty_safe_protection-forge-1.20.1' }
+java.toolchain.languageVersion=JavaLanguageVersion.of(17)
+minecraft {
+    mappings channel:'official', version:'1.20.1'
     runs {
-        client {
-            client()
-            gameDirectory=file('run-client')
-            programArguments.addAll '--username', 'SafeBoxDev', '--width', '1100', '--height', '720'
-        }
-        server { server(); programArgument '--nogui'; gameDirectory=file('run-server') }
-    }
-    mods { lofty_safe_protection { sourceSet sourceSets.main } }
-    unitTest {
-        enable()
-        testedMod = mods.lofty_safe_protection
+        client { workingDirectory project.file('run-client'); mods { lofty_safe_protection { source sourceSets.main } } }
+        server { workingDirectory project.file('run-server'); args '--nogui'; mods { lofty_safe_protection { source sourceSets.main } } }
     }
 }
+repositories {
+    mavenCentral()
+    maven { url='https://maven.latvian.dev/releases'; content { includeGroup 'dev.latvian.mods'; includeGroup 'dev.architectury' } }
+    maven { url='https://maven.architectury.dev/'; content { includeGroup 'dev.architectury' } }
+    maven { url='https://maven.blamejared.com/'; content { includeGroup 'mezz.jei' } }
+    maven { url='https://repo.spongepowered.org/repository/maven-public/' }
+}
+configurations { localRuntime { canBeConsumed=false; canBeResolved=false }; runtimeClasspath.extendsFrom localRuntime }
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.22'
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    compileOnly fg.deobf('mezz.jei:jei-1.20.1-common-api:15.74.0.234')
+    compileOnly fg.deobf('mezz.jei:jei-1.20.1-forge-api:15.74.0.234')
+    localRuntime fg.deobf('mezz.jei:jei-1.20.1-forge:15.74.0.234') { transitive=false }
+    compileOnly fg.deobf('dev.latvian.mods:kubejs-forge:2001.6.5-build.26') { transitive=false }
+    compileOnly fg.deobf('dev.latvian.mods:rhino-forge:2001.2.3-build.10') { transitive=false }
+    localRuntime fg.deobf('dev.latvian.mods:kubejs-forge:2001.6.5-build.26') { transitive=false }
+    localRuntime fg.deobf('dev.latvian.mods:rhino-forge:2001.2.3-build.10') { transitive=false }
+    localRuntime fg.deobf('dev.architectury:architectury-forge:9.2.14') { transitive=false }
+}
+mixin { add sourceSets.main, 'lofty_safe_protection.refmap.json'; config 'lofty_safe_protection.mixins.json' }
+jar { manifest { attributes 'MixinConfigs':'lofty_safe_protection.mixins.json' } }
+jar.finalizedBy('reobfJar')
 tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
 sourceSets.test {
     compileClasspath += sourceSets.main.compileClasspath
     runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.compileClasspath
 }
-tasks.register('prepareKubeJsExamples', Copy) {
-    from 'examples/kubejs'
-    into 'run-client/kubejs'
-}
-
-tasks.named('runClient') { dependsOn 'prepareKubeJsExamples' }
-tasks.register('prepareDevClient') { dependsOn 'classes', 'prepareClientRun', 'prepareKubeJsExamples' }
+tasks.register('prepareKubeJsExamples', Copy) { from 'examples/kubejs'; into 'run-client/kubejs' }
+tasks.matching { it.name == 'runClient' }.configureEach { dependsOn 'prepareKubeJsExamples' }
+tasks.register('prepareDevClient') { dependsOn 'classes', 'prepareKubeJsExamples', 'prepareRuns' }
 
 dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
@@ -90,6 +65,7 @@ tasks.register('stageTestClasses', Sync) {
 }
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
     inputs.dir('examples/kubejs')
     systemProperty 'lsp.testProjectDir', projectDir.absolutePath
     dependsOn 'stageTestClasses'
@@ -99,3 +75,46 @@ tasks.withType(Test).configureEach {
         locations.collect { new File(isolatedTestClasses, "runtime/${it.asFile.name}") }
     }) + (sourceSets.test.runtimeClasspath - sourceSets.main.output - sourceSets.test.output - stagedTestDependencies)
 }
+
+
+dependencies { testImplementation 'org.junit.platform:junit-platform-launcher:1.11.4' }
+dependencies { testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.11.4' }
+
+def integrationTestsRequested = gradle.startParameter.taskNames.any { it.tokenize(':').last() in ['build', 'check', 'test', 'runIntegrationTests'] }
+if (integrationTestsRequested) dependencies {
+    minecraftLibrary 'org.junit.jupiter:junit-jupiter:5.11.4'
+    minecraftLibrary 'org.junit.platform:junit-platform-launcher:1.11.4'
+    minecraftLibrary 'org.junit.jupiter:junit-jupiter-engine:5.11.4'
+}
+if (integrationTestsRequested) minecraft.runs.server {
+    source sourceSets.test
+    workingDirectory project.file('build/integration-game')
+    property 'lsp.integrationTests', 'true'
+    property 'lsp.testProjectDir', projectDir.absolutePath
+    mods { lofty_safe_protection { source sourceSets.main; source sourceSets.test } }
+}
+tasks.register('prepareIntegrationTests') {
+    dependsOn 'testClasses'
+    doLast {
+        def game = file('build/integration-game')
+        game.mkdirs()
+        copy { from 'examples/kubejs'; into new File(game, 'kubejs') }
+        new File(game, 'eula.txt').text = 'eula=true\n'
+        new File(game, 'server.properties').text = 'online-mode=false\nserver-ip=127.0.0.1\nserver-port=0\nlevel-type=minecraft:flat\ngenerator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","lakes":false,"features":false}\ngenerate-structures=false\nspawn-protection=0\nmax-tick-time=-1\n'
+        delete file('build/reports/integration-tests/results.json')
+    }
+}
+if (integrationTestsRequested) tasks.matching { it.name == 'runServer' }.configureEach { dependsOn 'prepareIntegrationTests' }
+tasks.register('runIntegrationTests') {
+    dependsOn 'runServer'
+    doLast {
+        def report = file('build/reports/integration-tests/results.json')
+        if (!report.isFile()) throw new GradleException('Forge integration test report was not produced')
+        def result = new groovy.json.JsonSlurper().parse(report)
+        if (result.tests < 36 || result.failed > 0 || result.containersFailed > 0)
+            throw new GradleException('Forge integration tests failed: ' + report.text)
+    }
+}
+tasks.named('test') { enabled = false; dependsOn 'runIntegrationTests' }
+
+dependencies { testImplementation 'org.ow2.asm:asm-tree:9.8' }

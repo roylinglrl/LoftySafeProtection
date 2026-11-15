@@ -23,7 +23,7 @@ public final class ContainerActions {
             ItemStack remaining = slot.getItem().copy();
             if (remaining.isEmpty()) continue;
             for (ItemStack target : merged) {
-                if (!ItemStack.isSameItemSameComponents(remaining, target)) continue;
+                if (!ItemStack.isSameItemSameTags(remaining, target)) continue;
                 int count = Math.min(remaining.getCount(), Math.min(target.getMaxStackSize(), slot.getMaxStackSize(target)) - target.getCount());
                 if (count > 0) { target.grow(count); remaining.shrink(count); }
                 if (remaining.isEmpty()) break;
@@ -31,7 +31,7 @@ public final class ContainerActions {
             if (!remaining.isEmpty()) merged.add(remaining);
         }
         merged.sort(Comparator.comparing((ItemStack stack) -> BuiltInRegistries.ITEM.getKey(stack.getItem()).toString())
-                .thenComparingInt(stack -> stack.getComponents().hashCode()).thenComparing(Comparator.comparingInt(ItemStack::getCount).reversed()));
+                .thenComparingInt(stack -> java.util.Objects.hashCode(stack.getTag())).thenComparing(Comparator.comparingInt(ItemStack::getCount).reversed()));
         for (int i = 0; i < slots.size(); i++) slots.get(i).set(i < merged.size() ? merged.get(i) : ItemStack.EMPTY);
     }
 
@@ -48,7 +48,7 @@ public final class ContainerActions {
             if (inventorySlot < 9 || inventorySlot >= 36
                     || source.index == lockedSlot || !source.isActive() || !source.mayPickup(player) || !visited.add(inventorySlot)) continue;
             ItemStack stack = source.getItem().copy();
-            if (stack.isEmpty() || kinds.stream().noneMatch(kind -> ItemStack.isSameItemSameComponents(kind, stack))) continue;
+            if (stack.isEmpty() || kinds.stream().noneMatch(kind -> ItemStack.isSameItemSameTags(kind, stack))) continue;
             int count = stack.getCount();
             InventoryContainerTransfers.move(stack, targets);
             if (stack.getCount() != count) {

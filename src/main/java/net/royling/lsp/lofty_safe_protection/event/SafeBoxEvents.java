@@ -14,22 +14,22 @@ import net.royling.lsp.lofty_safe_protection.menu.InventoryContainerMenuAccess;
 
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.ResourceLocationArgument;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
-import net.neoforged.neoforge.event.OnDatapackSyncEvent;
-import net.neoforged.neoforge.event.RegisterCommandsEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.OnDatapackSyncEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.entity.player.PlayerContainerEvent;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
 
 public final class SafeBoxEvents {
     private SafeBoxEvents() {}
 
     public static void register() {
-        NeoForge.EVENT_BUS.addListener(SafeBoxEvents::onReload);
-        NeoForge.EVENT_BUS.addListener(SafeBoxEvents::onDatapackSync);
-        NeoForge.EVENT_BUS.addListener(SafeBoxEvents::onRegisterCommands);
-        NeoForge.EVENT_BUS.addListener(SafeBoxEvents::onContainerClose);
-        NeoForge.EVENT_BUS.addListener(SafeBoxEvents::onContainerOpen);
+        MinecraftForge.EVENT_BUS.addListener(SafeBoxEvents::onReload);
+        MinecraftForge.EVENT_BUS.addListener(SafeBoxEvents::onDatapackSync);
+        MinecraftForge.EVENT_BUS.addListener(SafeBoxEvents::onRegisterCommands);
+        MinecraftForge.EVENT_BUS.addListener(SafeBoxEvents::onContainerClose);
+        MinecraftForge.EVENT_BUS.addListener(SafeBoxEvents::onContainerOpen);
     }
 
     private static void onContainerClose(PlayerContainerEvent.Close event) {
@@ -49,11 +49,11 @@ public final class SafeBoxEvents {
 
     private static void onDatapackSync(OnDatapackSyncEvent event) {
         var payload = new SafeBoxPayloads.SyncDefinitionsPayload(SafeBoxDefinitionCodec.encode());
-        if (event.getPlayer() != null) PacketDistributor.sendToPlayer(event.getPlayer(), payload);
-        else PacketDistributor.sendToAllPlayers(payload);
+        if (event.getPlayer() != null) PacketTransport.sendToPlayer(event.getPlayer(), payload);
+        else PacketTransport.sendToAllPlayers(payload);
         var containers = InventoryContainerNetworking.definitionsPayload();
-        if (event.getPlayer() != null) PacketDistributor.sendToPlayer(event.getPlayer(), containers);
-        else PacketDistributor.sendToAllPlayers(containers);
+        if (event.getPlayer() != null) PacketTransport.sendToPlayer(event.getPlayer(), containers);
+        else PacketTransport.sendToAllPlayers(containers);
     }
 
     private static void onRegisterCommands(RegisterCommandsEvent event) {

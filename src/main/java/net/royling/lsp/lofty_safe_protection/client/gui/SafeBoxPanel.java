@@ -8,7 +8,7 @@ import net.royling.lsp.lofty_safe_protection.menu.SafeBoxMenuAccess;
 import net.royling.lsp.lofty_safe_protection.registry.SafeBoxCreativeTab;
 import net.royling.lsp.lofty_safe_protection.menu.ContainerActions;
 import net.royling.lsp.lofty_safe_protection.network.InventoryContainerPayloads;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
 import net.minecraft.client.gui.components.Tooltip;
 
 import net.minecraft.client.Minecraft;
@@ -104,7 +104,7 @@ public final class SafeBoxPanel {
         var button=new Button(0,0,10,10,label,b->{
             var player=Minecraft.getInstance().player;
             if(player!=null&&player.containerMenu==player.inventoryMenu&&player.containerMenu.getCarried().isEmpty())
-                PacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(player.containerMenu.containerId,-1,action));
+                PacketTransport.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(player.containerMenu.containerId,-1,action));
         },supplier->supplier.get()){
             @Override protected void renderWidget(GuiGraphics graphics,int mouseX,int mouseY,float partial){ContainerActionIcons.draw(graphics,getX(),getY(),action,isHoveredOrFocused());}
         };

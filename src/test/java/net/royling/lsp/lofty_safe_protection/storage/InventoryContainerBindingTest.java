@@ -2,7 +2,6 @@ package net.royling.lsp.lofty_safe_protection.storage;
 
 import java.util.List;
 import net.minecraft.SharedConstants;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.inventory.Slot;
@@ -26,8 +25,8 @@ class InventoryContainerBindingTest {
         int before = parent.changes;
         var binding = new InventoryContainerBinding(new Slot(parent, 0, 0, 0));
         assertTrue(binding.write(List.of(new ItemStack(Items.MAP, 3)), 4, 4));
-        assertEquals(3, parent.getItem(0).get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
-        assertEquals(4, parent.getItem(0).get(DataComponents.CUSTOM_DATA).copyTag().getInt("ContainerColumns"));
+        assertEquals(3, net.royling.lsp.lofty_safe_protection.storage.legacy.ItemContainerContents.fromStack(parent.getItem(0)).getStackInSlot(0).getCount());
+        assertEquals(4, parent.getItem(0).getTag().getInt("ContainerColumns"));
         assertTrue(parent.changes > before);
         assertTrue(binding.matches());
     }
@@ -42,7 +41,7 @@ class InventoryContainerBindingTest {
         assertTrue(first.write(List.of(new ItemStack(Items.MAP, 5)), 4, 4));
         assertFalse(second.matches());
         assertFalse(second.write(List.of(), 4, 4));
-        assertEquals(5, parent.getItem(0).get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
+        assertEquals(5, net.royling.lsp.lofty_safe_protection.storage.legacy.ItemContainerContents.fromStack(parent.getItem(0)).getStackInSlot(0).getCount());
     }
 
     @Test
@@ -56,7 +55,7 @@ class InventoryContainerBindingTest {
         parent.setItem(0, new ItemStack(Items.STONE));
         assertFalse(binding.write(List.of(), 4, 4));
         assertTrue(parent.getItem(0).is(Items.STONE));
-        assertEquals(2, moved.get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
+        assertEquals(2, net.royling.lsp.lofty_safe_protection.storage.legacy.ItemContainerContents.fromStack(moved).getStackInSlot(0).getCount());
     }
 
     private static final class CopyingContainer extends SimpleContainer {

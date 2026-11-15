@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 import net.royling.lsp.lofty_safe_protection.menu.ContainerActions;
 import net.royling.lsp.lofty_safe_protection.menu.InventoryContainerMenuAccess;
@@ -176,7 +176,7 @@ public final class InventoryContainerPanel {
         window.state.reset();
         ORDER.raise(window);
         PENDING.put(index, slotId);
-        PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, index, slotId));
+        PacketTransport.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, index, slotId));
     }
 
     public static void acknowledge(int menuId, int windowId, int sourceSlot) {
@@ -188,7 +188,7 @@ public final class InventoryContainerPanel {
 
     private static void action(Window window, int action) {
         if (owner != null && window.storage.isOpen() && (action == ContainerActions.FOCUS || owner.getMenu().getCarried().isEmpty()))
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(owner.getMenu().containerId, window.storage.sourceSlot(), action));
+            PacketTransport.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(owner.getMenu().containerId, window.storage.sourceSlot(), action));
     }
 
     private static void close(Window window) {
@@ -198,7 +198,7 @@ public final class InventoryContainerPanel {
         PENDING.remove(window.index);
         if (dragging == window) dragging = null;
         if (owner != null && Minecraft.getInstance().getConnection() != null)
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, window.index, -1));
+            PacketTransport.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, window.index, -1));
         Window top = ORDER.top(InventoryContainerPanel::visible);
         if (top != null) action(top, ContainerActions.FOCUS);
     }
@@ -208,7 +208,7 @@ public final class InventoryContainerPanel {
     public static void reset() {
         for (Window window : ORDER.backToFront()) window.storage.close();
         if (owner != null && Minecraft.getInstance().getConnection() != null)
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, -1, -1));
+            PacketTransport.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, -1, -1));
         WINDOWS.clear();
         PENDING.clear();
         ORDER.clear();

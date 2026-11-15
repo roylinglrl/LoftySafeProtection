@@ -1,15 +1,15 @@
 package net.royling.lsp.lofty_safe_protection.compat.kubejs;
 
 import com.google.gson.JsonObject;
-import dev.latvian.mods.kubejs.event.KubeEvent;
-import dev.latvian.mods.kubejs.util.JsonUtils;
+import dev.latvian.mods.kubejs.event.EventJS;
+
 import dev.latvian.mods.rhino.Context;
 import java.util.Map;
 import net.minecraft.resources.ResourceLocation;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerDefinition;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 
-public final class SafeDefinitionEvent implements KubeEvent {
+public final class SafeDefinitionEvent extends EventJS {
     private final Map<ResourceLocation, SafeBoxManager.Definition> boxes;
     private final Map<ResourceLocation, InventoryContainerDefinition> containers;
 
@@ -19,29 +19,33 @@ public final class SafeDefinitionEvent implements KubeEvent {
         this.containers = containers;
     }
 
-    public void addSafeBox(Context cx, String id, String texture, int columns, int rows) {
-        addSafeBox(cx, id, texture, columns, rows, new JsonObject());
+    public void addSafeBox(String id, String texture, int columns, int rows) {
+        addSafeBox(id, texture, columns, rows, new JsonObject());
     }
 
-    public void addSafeBox(Context cx, String id, String texture, int columns, int rows, Object options) {
-        var key = ResourceLocation.parse(id);
-        JsonObject json = definition(key, texture, columns, rows, JsonUtils.objectOf(cx, options));
+    public void addSafeBox(String id, String texture, int columns, int rows, Object options) {
+        var key = new ResourceLocation(id);
+        JsonObject json = definition(key, texture, columns, rows, optionsJson(options));
         boxes.put(key, SafeBoxManager.parse(key, json));
     }
 
-    public void removeSafeBox(String id) { boxes.remove(ResourceLocation.parse(id)); }
+    public void removeSafeBox(String id) { boxes.remove(new ResourceLocation(id)); }
 
-    public void addCustomContainer(Context cx, String id, String texture, int columns, int rows) {
-        addCustomContainer(cx, id, texture, columns, rows, new JsonObject());
+    public void addCustomContainer(String id, String texture, int columns, int rows) {
+        addCustomContainer(id, texture, columns, rows, new JsonObject());
     }
 
-    public void addCustomContainer(Context cx, String id, String texture, int columns, int rows, Object options) {
-        var key = ResourceLocation.parse(id);
-        JsonObject json = definition(key, texture, columns, rows, JsonUtils.objectOf(cx, options));
+    public void addCustomContainer(String id, String texture, int columns, int rows, Object options) {
+        var key = new ResourceLocation(id);
+        JsonObject json = definition(key, texture, columns, rows, optionsJson(options));
         containers.put(key, InventoryContainerDefinition.parse(key, json));
     }
 
-    public void removeCustomContainer(String id) { containers.remove(ResourceLocation.parse(id)); }
+    public void removeCustomContainer(String id) { containers.remove(new ResourceLocation(id)); }
+
+    private static JsonObject optionsJson(Object value) {
+        return dev.latvian.mods.kubejs.util.JsonIO.of(value).getAsJsonObject();
+    }
 
     private static JsonObject definition(ResourceLocation id, String texture, int columns, int rows, JsonObject options) {
         if (options == null) options = new JsonObject();

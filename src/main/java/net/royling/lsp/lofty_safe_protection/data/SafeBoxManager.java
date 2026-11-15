@@ -24,7 +24,7 @@ public final class SafeBoxManager {
     public static MenuType<SafeBoxMenu> MENU;
     public static final Gson GSON = new Gson();
     public static volatile Map<ResourceLocation, Definition> definitions = Map.of();
-    public static ResourceLocation id(String path) { return ResourceLocation.fromNamespaceAndPath(MOD, path); }
+    public static ResourceLocation id(String path) { return new ResourceLocation(MOD, path); }
     public record Definition(ResourceLocation id, ResourceLocation texture, int columns, int rows,
                              boolean whitelist, Set<ResourceLocation> items, Set<ResourceLocation> tags, String translationKey,
                              SafeBoxExperienceSettings experience) {
@@ -42,7 +42,7 @@ public final class SafeBoxManager {
         }
     }
     public static Definition parse(ResourceLocation fileId, JsonObject json) {
-        ResourceLocation id = ResourceLocation.parse(json.get("id").getAsString());
+        ResourceLocation id = new ResourceLocation(json.get("id").getAsString());
         if (!id.equals(fileId)) throw new IllegalArgumentException("id must match data file path: " + fileId);
         JsonObject size = json.getAsJsonObject("capacity");
         int columns = integer(size, "columns"), rows = integer(size, "rows");
@@ -52,19 +52,19 @@ public final class SafeBoxManager {
         if (!mode.equals("whitelist") && !mode.equals("blacklist")) throw new IllegalArgumentException("invalid filter mode");
         String translationKey=json.has("translation_key")?json.get("translation_key").getAsString():defaultTranslationKey(id);
         if(translationKey.isBlank())throw new IllegalArgumentException("translation_key must not be blank");
-        return new Definition(id, ResourceLocation.parse(json.get("texture").getAsString()), columns, rows,
+        return new Definition(id, new ResourceLocation(json.get("texture").getAsString()), columns, rows,
             mode.equals("whitelist"), ids(filter, "items"), ids(filter, "tags"), translationKey, SafeBoxExperienceSettings.parse(json));
     }
     private static String defaultTranslationKey(ResourceLocation id){return "item."+id.getNamespace()+"."+id.getPath().replace('/','.');}
     private static int integer(JsonObject o, String key) { return o.get(key).getAsBigDecimal().intValueExact(); }
     private static Set<ResourceLocation> ids(JsonObject o, String key) {
         Set<ResourceLocation> result = new HashSet<>();
-        if (o.has(key)) for (JsonElement e : o.getAsJsonArray(key)) result.add(ResourceLocation.parse(e.getAsString()));
+        if (o.has(key)) for (JsonElement e : o.getAsJsonArray(key)) result.add(new ResourceLocation(e.getAsString()));
         return Set.copyOf(result);
     }
     public static ResourceLocation variant(ItemStack stack) {
-        if (!stack.is(ITEM) || !stack.has(net.minecraft.core.component.DataComponents.CUSTOM_DATA)) return null;
-        return ResourceLocation.tryParse(stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA).copyTag().getString("SafeBoxId"));
+        if (!stack.is(ITEM) || !stack.hasTag()) return null;
+        return ResourceLocation.tryParse(stack.getTag().getString("SafeBoxId"));
     }
     public static Definition definition(ItemStack stack) {
         var key = variant(stack);
@@ -72,7 +72,7 @@ public final class SafeBoxManager {
         var definition = definitions.get(key);
         return definition != null ? definition : definitions.get(LegacySafeBoxIds.definitionId(key));
     }
-    public static ItemStack stack(ResourceLocation id) { ItemStack s = new ItemStack(ITEM); var tag=new net.minecraft.nbt.CompoundTag(); tag.putString("SafeBoxId",id.toString()); s.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA,net.minecraft.world.item.component.CustomData.of(tag)); return s; }
+    public static ItemStack stack(ResourceLocation id) { ItemStack s = new ItemStack(ITEM); var tag=new net.minecraft.nbt.CompoundTag(); tag.putString("SafeBoxId",id.toString()); s.setTag(tag); return s; }
     public static void setExpanded(ServerPlayer player, boolean expanded) {
         if (!player.isAlive() || player.isSpectator()) return;
         if (expanded && player.containerMenu != player.inventoryMenu) return;

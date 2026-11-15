@@ -10,11 +10,11 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 
 | 项目 | 当前支持 |
 | --- | --- |
-| Minecraft | 1.21.1 |
-| 加载器 | NeoForge 21.1.265 及以上的 1.21.1 版本 |
-| Java | 21 |
+| Minecraft | 1.20.1 |
+| 加载器 | Forge 47.4.22 及以上的 1.20.1 版本 |
+| Java | 17 |
 | 模组 ID | `lofty_safe_protection` |
-| 可选兼容 | JEI、KubeJS 7 |
+| 可选兼容 | JEI、KubeJS 6 |
 
 多人游戏时，客户端和服务端均需安装本模组。JEI 与 KubeJS 是可选组件。
 
@@ -87,7 +87,7 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 | --- | --- |
 | 安全箱定义 | `data/<命名空间>/safeboxes/<名称>.json` |
 | 背包内容器定义 | `data/<命名空间>/inventory_containers/<名称>.json` |
-| 安全箱默认禁用物品标签 | `data/lofty_safe_protection/tags/item/blacklisted_items.json` |
+| 安全箱默认禁用物品标签 | `data/lofty_safe_protection/tags/items/blacklisted_items.json` |
 
 定义的 `id` 应与命名空间及文件路径对应。容量支持 1～9 列、1～6 行；JSON 中的 `columns` 表示列数，`rows` 表示行数。
 
@@ -118,7 +118,7 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 
 `filter.mode` 可使用 `whitelist` 或 `blacklist`，`items` 为物品 ID 列表，`tags` 为物品标签 ID 列表，标签 ID 不加 `#`。背包内容器使用相同的容量和过滤结构，需填写 `translation_key`，并不使用安全箱专属的 `experience` 设置。
 
-## KubeJS 7 扩展
+## KubeJS 6 扩展
 
 将脚本放入 `kubejs/server_scripts/`，通过 `SafeEvents.definitions` 添加、覆盖或移除定义。事件在数据包定义加载后执行，因此可移除来自其他数据包的安全箱或背包内容器。修改后使用 `/reload` 重载。
 
@@ -172,7 +172,7 @@ SafeEvents.definitions(event => {
 
 ## 开发与构建
 
-使用 Java 21，在项目根目录执行：
+使用 Java 17，在项目根目录执行：
 
 ```powershell
 .\gradlew.bat build
@@ -185,6 +185,8 @@ SafeEvents.definitions(event => {
 ```
 
 开发运行环境通过 Maven 加载 JEI、KubeJS 和 Rhino，并将仓库内的 KubeJS 示例复制到开发客户端目录。
+
+`build` 会在隔离的 Forge 服务端运行回归测试，并验证 KubeJS 6 示例。测试世界和报告均位于 `build/` 下。
 
 ## 许可证
 

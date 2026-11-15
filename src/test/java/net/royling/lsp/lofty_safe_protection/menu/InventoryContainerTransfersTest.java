@@ -74,10 +74,10 @@ class InventoryContainerTransfersTest {
         var oldItem = InventoryContainerManager.ITEM;
         var oldDefinitions = InventoryContainerManager.definitions;
         try {
-            var id = ResourceLocation.parse("example:maps");
+            var id = new ResourceLocation("example:maps");
             InventoryContainerManager.ITEM = Items.BUNDLE;
             InventoryContainerManager.definitions = Map.of(id, new InventoryContainerDefinition(
-                    id, "item.example.maps", id, 1, 1, true, Set.of(ResourceLocation.parse("minecraft:map")), Set.of()));
+                    id, "item.example.maps", id, 1, 1, true, Set.of(new ResourceLocation("minecraft:map")), Set.of()));
             var parent = new SimpleContainer(2) {
                 @Override public ItemStack getItem(int slot) { return super.getItem(slot).copy(); }
             };

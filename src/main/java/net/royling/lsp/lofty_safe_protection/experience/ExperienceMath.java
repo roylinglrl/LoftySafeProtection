@@ -17,7 +17,7 @@ public final class ExperienceMath {
         long base = atLevel(level);
         if (base > Integer.MAX_VALUE) return base;
         long next = atLevel(Math.max(0, level) + 1) - base;
-        return base + Math.round(Math.clamp((double) progress, 0, 1) * next);
+        return base + Math.round(Math.max(0, Math.min(1, (double) progress)) * next);
     }
 
     public static int levelFor(int points) {

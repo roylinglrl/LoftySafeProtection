@@ -4,7 +4,7 @@ import net.royling.lsp.lofty_safe_protection.client.gui.SlotPositionAccess;
 
 import net.minecraft.world.inventory.Slot;
 import org.spongepowered.asm.mixin.*;
-@Mixin(value=Slot.class,remap=false)
+@Mixin(value=Slot.class,remap=true)
 public abstract class SlotMixin implements SlotPositionAccess {
     @Shadow() @Final @Mutable public int x;
     @Shadow() @Final @Mutable public int y;

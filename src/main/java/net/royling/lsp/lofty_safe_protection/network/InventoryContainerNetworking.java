@@ -9,8 +9,8 @@ import java.util.List;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
+import net.royling.lsp.lofty_safe_protection.network.PayloadRegistrar;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerDefinition;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
@@ -64,7 +64,7 @@ public final class InventoryContainerNetworking {
                     if (menu.containerId != payload.menuId() || !(menu instanceof InventoryContainerMenuAccess access)) return;
                     handleWindow(player, access, payload);
                     menu.sendAllDataToRemote();
-                    PacketDistributor.sendToPlayer(player, new InventoryContainerPayloads.WindowAcknowledgedPayload(menu.containerId, payload.windowId(), payload.slotId()));
+                    PacketTransport.sendToPlayer(player, new InventoryContainerPayloads.WindowAcknowledgedPayload(menu.containerId, payload.windowId(), payload.slotId()));
                 }));
         registrar.playToClient(InventoryContainerPayloads.WindowAcknowledgedPayload.TYPE, InventoryContainerPayloads.WindowAcknowledgedPayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> net.royling.lsp.lofty_safe_protection.client.gui.InventoryContainerPanel.acknowledge(payload.menuId(), payload.windowId(), payload.sourceSlot())));
@@ -73,7 +73,7 @@ public final class InventoryContainerNetworking {
                     Map<ResourceLocation, InventoryContainerDefinition> next = new HashMap<>();
                     for (JsonElement entry : JsonParser.parseString(payload.json()).getAsJsonArray()) {
                         var json = entry.getAsJsonObject();
-                        var id = ResourceLocation.parse(json.get("id").getAsString());
+                        var id = new ResourceLocation(json.get("id").getAsString());
                         next.put(id, InventoryContainerDefinition.parse(id, json));
                     }
                     InventoryContainerManager.definitions = Map.copyOf(next);
@@ -100,7 +100,7 @@ public final class InventoryContainerNetworking {
         while (access.lsp$inventoryContainers().size() <= index) if (access.lsp$addInventoryContainer(player) == null) return;
         var storage = access.lsp$inventoryContainers().get(index);
         if (storage.isOpen()) return;
-        PacketDistributor.sendToPlayer(player, definitionsPayload());
+        PacketTransport.sendToPlayer(player, definitionsPayload());
         storage.open(payload.slotId());
         if (storage.isOpen()) access.lsp$focusInventoryContainer(payload.slotId());
     }

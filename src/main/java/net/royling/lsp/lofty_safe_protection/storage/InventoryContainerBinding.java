@@ -1,11 +1,9 @@
 package net.royling.lsp.lofty_safe_protection.storage;
 
 import java.util.List;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.component.ItemContainerContents;
+import net.royling.lsp.lofty_safe_protection.storage.legacy.ItemContainerContents;
 
 public final class InventoryContainerBinding {
     private final Slot source;
@@ -18,14 +16,14 @@ public final class InventoryContainerBinding {
 
     public boolean matches() {
         ItemStack current = source.getItem();
-        return current.getCount() == 1 && ItemStack.isSameItemSameComponents(current, snapshot);
+        return current.getCount() == 1 && ItemStack.isSameItemSameTags(current, snapshot);
     }
 
     public boolean write(List<ItemStack> items, int columns, int rows) {
         if (!matches()) return false;
         ItemStack updated = source.getItem().copy();
-        updated.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(items));
-        CustomData.update(DataComponents.CUSTOM_DATA, updated, tag -> {
+        ItemContainerContents.fromItems(items).writeTo(updated);
+        ItemStorageData.update(updated, tag -> {
             tag.putInt("ContainerColumns", columns);
             tag.putInt("ContainerRows", rows);
         });

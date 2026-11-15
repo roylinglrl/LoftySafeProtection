@@ -12,13 +12,13 @@ import net.royling.lsp.lofty_safe_protection.item.ContainerContentsSummary;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.world.inventory.Slot;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.bus.api.EventPriority;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderTooltipEvent;
-import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.client.event.RenderTooltipEvent;
+import net.minecraftforge.client.event.ScreenEvent;
+import net.minecraftforge.client.event.ContainerScreenEvent;
 import net.royling.lsp.lofty_safe_protection.client.gui.InventoryContainerPanel;
 import net.royling.lsp.lofty_safe_protection.menu.InventoryItemContainer;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
@@ -66,7 +66,7 @@ public final class InventoryContainerScreenEvents {
         var screen = Minecraft.getInstance().screen;
         Slot slot = screen instanceof AbstractContainerScreen<?> container ? container.getSlotUnderMouse() : null;
         boolean nativeSlotTooltip = slot != null && slot.hasItem() && !event.getItemStack().isEmpty()
-                && net.minecraft.world.item.ItemStack.isSameItemSameComponents(slot.getItem(), event.getItemStack());
+                && net.minecraft.world.item.ItemStack.isSameItemSameTags(slot.getItem(), event.getItemStack());
         if (!InventoryContainerPanel.drawingTooltip() && InventoryContainerPanel.visible()
                 && (nativeSlotTooltip || InventoryContainerPanel.contains(event.getX(), event.getY())))
             event.setCanceled(true);

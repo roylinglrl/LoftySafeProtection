@@ -10,19 +10,19 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InventoryContainerDefinitionTest {
-    private static final ResourceLocation ID = ResourceLocation.parse("example:container");
+    private static final ResourceLocation ID = new ResourceLocation("example:container");
 
     @Test
     void defaultMapPouchHasSixteenSlotsAndOnlyAcceptsMapIds() throws Exception {
         try (var stream = getClass().getResourceAsStream("/data/lofty_safe_protection/inventory_containers/map_pouch.json")) {
             assertNotNull(stream);
             var json = JsonParser.parseReader(new InputStreamReader(stream, StandardCharsets.UTF_8)).getAsJsonObject();
-            var definition = InventoryContainerDefinition.parse(ResourceLocation.parse("lofty_safe_protection:map_pouch"), json);
+            var definition = InventoryContainerDefinition.parse(new ResourceLocation("lofty_safe_protection:map_pouch"), json);
             assertEquals(4, definition.rows());
             assertEquals(4, definition.columns());
             assertEquals("item.lofty_safe_protection.map_pouch", definition.translationKey());
             assertTrue(definition.whitelist());
-            assertEquals(Set.of(ResourceLocation.parse("minecraft:map"), ResourceLocation.parse("minecraft:filled_map")), definition.items());
+            assertEquals(Set.of(new ResourceLocation("minecraft:map"), new ResourceLocation("minecraft:filled_map")), definition.items());
             assertTrue(definition.tags().isEmpty());
         }
     }
@@ -38,7 +38,7 @@ class InventoryContainerDefinitionTest {
             assertEquals(3, definition.columns());
             assertEquals(2, definition.rows());
             assertEquals(mode.equals("whitelist"), definition.whitelist());
-            assertEquals(Set.of(ResourceLocation.parse("example:maps")), definition.tags());
+            assertEquals(Set.of(new ResourceLocation("example:maps")), definition.tags());
             var encoded = definition.toJson();
             assertFalse(encoded.has("name"));
             assertEquals(definition, InventoryContainerDefinition.parse(ID, encoded));
@@ -72,7 +72,7 @@ class InventoryContainerDefinitionTest {
         JsonObject badFilter = base();
         badFilter.add("filter", JsonParser.parseString("{\"mode\":\"unknown\"}"));
         assertThrows(IllegalArgumentException.class, () -> InventoryContainerDefinition.parse(ID, badFilter));
-        assertThrows(IllegalArgumentException.class, () -> InventoryContainerDefinition.parse(ResourceLocation.parse("example:other"), base()));
+        assertThrows(IllegalArgumentException.class, () -> InventoryContainerDefinition.parse(new ResourceLocation("example:other"), base()));
     }
 
     private JsonObject base() {

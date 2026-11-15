@@ -23,7 +23,7 @@ public final class SafeBoxDefinitionCodec {
     }
     public static void decode(String json) {
         Map<ResourceLocation,SafeBoxManager.Definition> next=new HashMap<>();
-        for(JsonElement e:JsonParser.parseString(json).getAsJsonArray()) { JsonObject o=e.getAsJsonObject(); var id=ResourceLocation.parse(o.get("id").getAsString()); next.put(id,SafeBoxManager.parse(id,o)); }
+        for(JsonElement e:JsonParser.parseString(json).getAsJsonArray()) { JsonObject o=e.getAsJsonObject(); var id=new ResourceLocation(o.get("id").getAsString()); next.put(id,SafeBoxManager.parse(id,o)); }
         SafeBoxManager.definitions=Map.copyOf(next); SafeBoxCreativeTab.refresh.run();
     }
 }

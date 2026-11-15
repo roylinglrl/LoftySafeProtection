@@ -53,7 +53,7 @@ public final class InventoryContainerTransfers {
             if (stack.isEmpty()) return;
             ItemStack existing = slot.getItem();
             if (!slot.isActive() || !slot.mayPlace(stack) || existing.isEmpty()
-                    || !ItemStack.isSameItemSameComponents(stack, existing)) continue;
+                    || !ItemStack.isSameItemSameTags(stack, existing)) continue;
             int count = Math.min(stack.getCount(), slot.getMaxStackSize(stack) - existing.getCount());
             if (count <= 0) continue;
             existing = existing.copyWithCount(existing.getCount() + count);

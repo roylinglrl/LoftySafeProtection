@@ -13,7 +13,7 @@ import java.util.*;
 public final class SafeBoxSavedData extends SavedData {
     private final Map<UUID, PlayerStorage> players = new HashMap<>();
     public static SafeBoxSavedData get(ServerPlayer player) {
-        return player.level().getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(SafeBoxSavedData::new, SafeBoxSavedData::load, null), "safebox_players");
+        return player.level().getServer().overworld().getDataStorage().computeIfAbsent(SafeBoxSavedData::load, SafeBoxSavedData::new, "safebox_players");
     }
     public PlayerStorage forPlayer(UUID uuid) { return players.computeIfAbsent(uuid, key -> new PlayerStorage(this::setDirty)); }
     public static final class PlayerStorage extends SimpleContainer {
@@ -34,7 +34,7 @@ public final class SafeBoxSavedData extends SavedData {
         }
         @Override public void setChanged() { super.setChanged(); if (dirty != null) dirty.run(); }
     }
-    private static SafeBoxSavedData load(CompoundTag root, net.minecraft.core.HolderLookup.Provider registries) {
+    private static SafeBoxSavedData load(CompoundTag root) {
         SafeBoxSavedData store = new SafeBoxSavedData();
         for (String key : root.getAllKeys()) {
             CompoundTag tag = root.getCompound(key);
@@ -46,17 +46,17 @@ public final class SafeBoxSavedData extends SavedData {
             ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
             for (int i=0;i<items.size();i++) { CompoundTag item = items.getCompound(i); int slot = item.getInt("Slot");
                 if (slot < 0 || slot >= 55) throw new IllegalStateException("Invalid saved safe box slot");
-                state.setItem(slot, ItemStack.parseOptional(registries,item));
+                state.setItem(slot, ItemStack.of(item));
             }
         }
         return store;
     }
-    @Override public CompoundTag save(CompoundTag root, net.minecraft.core.HolderLookup.Provider registries) {
+    @Override public CompoundTag save(CompoundTag root) {
         players.forEach((uuid, state) -> {
             CompoundTag tag = new CompoundTag(); tag.putInt("Columns", state.columns); tag.putInt("Rows", state.rows);
             tag.putInt("Experience", state.experience());
             ListTag items = new ListTag();
-            for (int i=0;i<55;i++) if (!state.getItem(i).isEmpty()) { CompoundTag item = (CompoundTag) state.getItem(i).save(registries,new CompoundTag()); item.putInt("Slot", i); items.add(item); }
+            for (int i=0;i<55;i++) if (!state.getItem(i).isEmpty()) { CompoundTag item = (CompoundTag) state.getItem(i).save(new CompoundTag()); item.putInt("Slot", i); items.add(item); }
             tag.put("Items", items); root.put(uuid.toString(), tag);
         });
         return root;

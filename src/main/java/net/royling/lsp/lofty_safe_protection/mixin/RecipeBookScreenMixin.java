@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = {InventoryScreen.class, CraftingScreen.class, AbstractFurnaceScreen.class}, remap = false)
+@Mixin(value = {InventoryScreen.class, CraftingScreen.class, AbstractFurnaceScreen.class}, remap = true)
 public abstract class RecipeBookScreenMixin extends AbstractContainerScreen<AbstractContainerMenu> {
     protected RecipeBookScreenMixin(AbstractContainerMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);

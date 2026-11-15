@@ -12,18 +12,18 @@ import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredRegister;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.registries.DeferredRegister;
 
 public final class SafeBoxRegistries {
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, SafeBoxManager.MOD);
     private static final DeferredRegister<MenuType<?>> MENUS = DeferredRegister.create(Registries.MENU, SafeBoxManager.MOD);
-    public static final DeferredHolder<Item, Item> BOX = ITEMS.register("safe_box",
+    public static final RegistryObject<Item> BOX = ITEMS.register("safe_box",
             () -> SafeBoxManager.ITEM = new SafeBoxItem(new Item.Properties().stacksTo(1).fireResistant()));
-    public static final DeferredHolder<Item, Item> INVENTORY_CONTAINER = ITEMS.register("inventory_container",
+    public static final RegistryObject<Item> INVENTORY_CONTAINER = ITEMS.register("inventory_container",
             () -> InventoryContainerManager.ITEM = new InventoryContainerItem(new Item.Properties()));
-    public static final DeferredHolder<MenuType<?>, MenuType<SafeBoxMenu>> MENU = MENUS.register("safe_box",
+    public static final RegistryObject<MenuType<SafeBoxMenu>> MENU = MENUS.register("safe_box",
             () -> SafeBoxManager.MENU = new MenuType<>(SafeBoxMenu::new, FeatureFlags.DEFAULT_FLAGS));
     private static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SafeBoxManager.MOD);
 

@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = AbstractContainerScreen.class, remap = false)
+@Mixin(value = AbstractContainerScreen.class, remap = true)
 public abstract class ContainerScreenMixin implements ContainerScreenAccess {
     @Shadow private ItemStack draggingItem;
     @Shadow private boolean isSplittingStack;
@@ -65,7 +65,7 @@ public abstract class ContainerScreenMixin implements ContainerScreenAccess {
             callback.setReturnValue(slot == InventoryContainerPanel.slotAt(x, y));
     }
 
-    @Inject(method = "renderSlot", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "renderSlot(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/inventory/Slot;)V", at = @At("HEAD"), cancellable = true)
     private void lsp$overlaySlot(GuiGraphics graphics, Slot slot, CallbackInfo callback) {
         if (InventoryContainerPanel.supports((AbstractContainerScreen<?>) (Object) this) && slot.container instanceof InventoryItemContainer
                 && !InventoryContainerPanel.renderingSlots()) callback.cancel();

@@ -5,14 +5,14 @@ import net.royling.lsp.lofty_safe_protection.experience.SafeBoxExperienceService
 
 
 import net.minecraft.server.level.ServerPlayer;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
+
 
 public final class SafeBoxNetworking {
     private SafeBoxNetworking() {}
 
-    public static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("7");
+    public static void registerPayloadHandlers() {
+        var registrar = new PayloadRegistrar();
         InventoryContainerNetworking.register(registrar);
         registrar.playToServer(SafeBoxPayloads.ExperienceTransferPayload.TYPE, SafeBoxPayloads.ExperienceTransferPayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
@@ -23,7 +23,7 @@ public final class SafeBoxNetworking {
         registrar.playToServer(SafeBoxPayloads.SetExpandedPayload.TYPE, SafeBoxPayloads.SetExpandedPayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
                     if (context.player() instanceof ServerPlayer player && player.isAlive() && !player.isSpectator()) {
-                        PacketDistributor.sendToPlayer(player, new SafeBoxPayloads.SyncDefinitionsPayload(SafeBoxDefinitionCodec.encode()));
+                        PacketTransport.sendToPlayer(player, new SafeBoxPayloads.SyncDefinitionsPayload(SafeBoxDefinitionCodec.encode()));
                         SafeBoxManager.setExpanded(player, payload.expanded());
                     }
                 }));

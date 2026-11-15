@@ -20,7 +20,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value = AbstractContainerMenu.class, remap = false)
+@Mixin(value = AbstractContainerMenu.class, remap = true)
 public abstract class ContainerMenuMixin implements InventoryContainerMenuAccess {
     @Unique private final List<InventoryItemContainer> lsp$inventoryContainers = new ArrayList<>();
     @Unique private final List<Integer> lsp$focusOrder = new ArrayList<>();

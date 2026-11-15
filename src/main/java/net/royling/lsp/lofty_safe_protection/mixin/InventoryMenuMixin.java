@@ -12,7 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.*;
-@Mixin(value=InventoryMenu.class,remap=false)
+@Mixin(value=InventoryMenu.class,remap=true)
 public abstract class InventoryMenuMixin extends AbstractContainerMenu implements SafeBoxMenuAccess {
     @Unique private SafeBoxContainer lsp$box;
     protected InventoryMenuMixin(MenuType<?> type,int id){super(type,id);}

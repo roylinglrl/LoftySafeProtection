@@ -10,11 +10,11 @@ Lofty Safe Protection adds a safe box side panel to the player inventory, alongs
 
 | Component | Current support |
 | --- | --- |
-| Minecraft | 1.21.1 |
-| Mod loader | NeoForge 21.1.265 or newer for Minecraft 1.21.1 |
-| Java | 21 |
+| Minecraft | 1.20.1 |
+| Mod loader | Forge 47.4.22 or newer for Minecraft 1.20.1 |
+| Java | 17 |
 | Mod ID | `lofty_safe_protection` |
-| Optional integrations | JEI, KubeJS 7 |
+| Optional integrations | JEI, KubeJS 6 |
 
 Install the mod on both the client and server for multiplayer. JEI and KubeJS are optional.
 
@@ -87,7 +87,7 @@ Both storage types use JSON definitions with an ID, texture, translation key, re
 | --- | --- |
 | Safe boxes | `data/<namespace>/safeboxes/<name>.json` |
 | Portable containers | `data/<namespace>/inventory_containers/<name>.json` |
-| Default safe box blacklist tag | `data/lofty_safe_protection/tags/item/blacklisted_items.json` |
+| Default safe box blacklist tag | `data/lofty_safe_protection/tags/items/blacklisted_items.json` |
 
 The definition ID must match its namespace and file path. Capacities support 1–9 columns and 1–6 rows. In JSON, `columns` is the width and `rows` is the height.
 
@@ -118,7 +118,7 @@ Save this as `data/example/safeboxes/custom_safe.json`. Supply textures and loca
 
 Set `filter.mode` to `whitelist` or `blacklist`. `items` contains item IDs, and `tags` contains item tag IDs without a leading `#`. Portable containers use the same capacity and filter structure, require a `translation_key`, and do not use the safe-box-only `experience` setting.
 
-## KubeJS 7 Integration
+## KubeJS 6 Integration
 
 Place scripts in `kubejs/server_scripts/` and use `SafeEvents.definitions` to add, replace, or remove definitions. The event runs after data pack definitions load, allowing scripts to remove safe boxes or portable containers supplied by other data packs. Use `/reload` after changing scripts.
 
@@ -172,7 +172,7 @@ With the SICC example loaded:
 
 ## Development and Building
 
-With Java 21, run the following from the project root on Windows:
+With Java 17, run the following from the project root on Windows:
 
 ```powershell
 .\gradlew.bat build
@@ -185,6 +185,8 @@ Build outputs are written to `build/libs/`. Start the development client with:
 ```
 
 The development runtime loads JEI, KubeJS, and Rhino through Maven, and copies the repository's KubeJS example into the development client directory.
+
+`build` runs regression tests inside an isolated Forge server, including the KubeJS 6 example. Test worlds and reports are written under `build/`.
 
 ## License
 

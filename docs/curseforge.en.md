@@ -42,20 +42,20 @@ Portable container contents are saved in the item and follow normal item death-d
 
 Define safe boxes and portable containers through JSON data packs. Configure IDs, textures, translation keys, rectangular capacities, and item ID or item tag whitelists and blacklists. Experience storage and capacity are configurable for each safe box.
 
-Optionally install **KubeJS 7** and use `SafeEvents.definitions` to add, replace, or remove definitions, including those supplied by other data packs.
+Optionally install **KubeJS 6** and use `SafeEvents.definitions` to add, replace, or remove definitions, including those supplied by other data packs.
 
 **Visit GitHub for working definition examples:**
 
-- [Safe box JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
-- [Map Pouch JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
+- [Safe box JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/forge/1.20.1/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
+- [Map Pouch JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/forge/1.20.1/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
 - [5×5 SICC Pouch KubeJS example](https://github.com/roylinglrl/LoftySafeProtection/tree/main/examples/kubejs)
-- [Full configuration and usage documentation](https://github.com/roylinglrl/LoftySafeProtection/blob/main/README.en.md)
+- [Full configuration and usage documentation](https://github.com/roylinglrl/LoftySafeProtection/blob/forge/1.20.1/README.en.md)
 
 The SICC Pouch is an optional repository example demonstrating dedicated storage rules for nuggets, dyes, dusts, paper, banner patterns, smithing templates, and enchanted books.
 
 ## Requirements
 
-**Minecraft 1.21.1 · NeoForge 21.1.265 or newer for Minecraft 1.21.1 · Java 21**
+**Minecraft 1.20.1 · Forge 47.4.22 or newer for Minecraft 1.20.1 · Java 17**
 
 Install the mod on both the client and server for multiplayer. JEI and KubeJS are optional.
 

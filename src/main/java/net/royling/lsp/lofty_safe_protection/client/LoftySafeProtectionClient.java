@@ -14,13 +14,13 @@ import net.royling.lsp.lofty_safe_protection.item.SafeBoxTooltips;
 import net.royling.lsp.lofty_safe_protection.network.SafeBoxPayloads;
 import net.royling.lsp.lofty_safe_protection.registry.SafeBoxCreativeTab;
 
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.*;
-import net.neoforged.neoforge.client.extensions.common.*;
-import net.neoforged.neoforge.network.PacketDistributor;
-import net.neoforged.neoforge.event.entity.player.ItemTooltipEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.client.event.*;
+import net.minecraftforge.client.extensions.common.*;
+import net.royling.lsp.lofty_safe_protection.network.PacketTransport;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -28,25 +28,25 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.world.item.*;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-@EventBusSubscriber(modid=SafeBoxManager.MOD,value=Dist.CLIENT)
+@EventBusSubscriber(modid=SafeBoxManager.MOD,value=Dist.CLIENT,bus=EventBusSubscriber.Bus.MOD)
 public final class LoftySafeProtectionClient {
-    @SubscribeEvent public static void menus(RegisterMenuScreensEvent e){SafeBoxCreativeTab.refresh=SafeBoxPanel::refreshCreative;}
+    @SubscribeEvent public static void menus(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent e){SafeBoxCreativeTab.refresh=SafeBoxPanel::refreshCreative;}
     @SubscribeEvent public static void tooltipComponents(RegisterClientTooltipComponentFactoriesEvent event){event.register(ContainerPreview.class,preview->preview);}
-    private static void sendExpanded(boolean expanded){PacketDistributor.sendToServer(new SafeBoxPayloads.SetExpandedPayload(expanded));}
-    @SubscribeEvent public static void items(RegisterClientExtensionsEvent e){e.registerItem(new IClientItemExtensions(){
+    private static void sendExpanded(boolean expanded){PacketTransport.sendToServer(new SafeBoxPayloads.SetExpandedPayload(expanded));}
+    public static IClientItemExtensions itemExtension(){return new IClientItemExtensions(){
         private BlockEntityWithoutLevelRenderer renderer;
         @Override public BlockEntityWithoutLevelRenderer getCustomRenderer(){
             if(renderer==null) renderer=new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(),Minecraft.getInstance().getEntityModels()) {
                 @Override public void renderByItem(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
                     if (stack.is(InventoryContainerManager.ITEM)) {
                         var definition = InventoryContainerManager.definition(stack);
-                        var texture = definition == null ? net.minecraft.resources.ResourceLocation.withDefaultNamespace("textures/item/bundle.png") : definition.texture();
+                        var texture = definition == null ? new net.minecraft.resources.ResourceLocation("textures/item/bundle.png") : definition.texture();
                         TextureItemRenderer.render(texture, pose, buffers, light, overlay);
                     } else SafeBoxItemRenderer.render(stack,context,pose,buffers,light,overlay);
                 }
             };return renderer;
         }
-    },SafeBoxManager.ITEM,InventoryContainerManager.ITEM);}
+    };}
     @EventBusSubscriber(modid=SafeBoxManager.MOD,value=Dist.CLIENT)
     public static class InventoryScreenEvents {
         private static Button button;private static Button closeButton;private static InventoryScreen owner;
@@ -56,8 +56,8 @@ public final class LoftySafeProtectionClient {
         @SubscribeEvent public static void init(ScreenEvent.Init.Post event) {
             if(event.getScreen() instanceof InventoryScreen screen) {
                 owner=screen;button=SafeBoxPanel.button(LoftySafeProtectionClient::sendExpanded);closeButton=SafeBoxPanel.closeButton(LoftySafeProtectionClient::sendExpanded);
-                withdrawExperience=SafeBoxExperienceControls.button(false,p->PacketDistributor.sendToServer(p));
-                depositExperience=SafeBoxExperienceControls.button(true,p->PacketDistributor.sendToServer(p));
+                withdrawExperience=SafeBoxExperienceControls.button(false,p->PacketTransport.sendToServer(p));
+                depositExperience=SafeBoxExperienceControls.button(true,p->PacketTransport.sendToServer(p));
                 SafeBoxPanel.position(button,closeButton,screen.getGuiLeft(),screen.getGuiTop());event.addListener(button);event.addListener(closeButton);
                 SafeBoxExperienceControls.position(withdrawExperience,depositExperience,screen.getGuiLeft(),screen.getGuiTop());
                 event.addListener(withdrawExperience);event.addListener(depositExperience);

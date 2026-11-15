@@ -3,7 +3,7 @@ SafeEvents.definitions(event => {
     translation_key: 'item.kubejs.sicc_pouch',
     filter: {
       mode: 'whitelist',
-      tags: ['c:nuggets', 'c:dyes', 'c:dusts', 'c:gunpowders', 'minecraft:trim_templates'],
+      tags: ['forge:nuggets', 'forge:dyes', 'forge:dusts', 'forge:gunpowder', 'minecraft:trim_templates'],
       items: [
         'minecraft:paper',
         'minecraft:enchanted_book',
@@ -18,8 +18,6 @@ SafeEvents.definitions(event => {
         'minecraft:mojang_banner_pattern',
         'minecraft:globe_banner_pattern',
         'minecraft:piglin_banner_pattern',
-        'minecraft:flow_banner_pattern',
-        'minecraft:guster_banner_pattern'
       ]
     }
   })
