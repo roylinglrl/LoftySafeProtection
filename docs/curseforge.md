@@ -48,7 +48,7 @@ Lofty Safe Protection 为玩家物品栏带来安全箱侧栏和可右键打开�
 
 - [安全箱 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
 - [地图包 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
-- [5×5 SICC 收纳包 KubeJS 示例](https://github.com/roylinglrl/LoftySafeProtection/tree/main/examples/kubejs)
+- [5×5 SICC 收纳包 KubeJS 示例](https://github.com/roylinglrl/LoftySafeProtection/tree/neoforge/26.1.2/examples/kubejs)
 - [完整配置与使用说明](https://github.com/roylinglrl/LoftySafeProtection#readme)
 
 SICC 收纳包是仓库中的可选脚本示例，展示如何为金属粒、染料、粉尘、纸、旗帜图案、锻造模板和附魔书配置专用收纳规则。
@@ -62,4 +62,6 @@ SICC 收纳包是仓库中的可选脚本示例，展示如何为金属粒、染
 [GitHub 源码与说明](https://github.com/roylinglrl/LoftySafeProtection) · [问题反馈](https://github.com/roylinglrl/LoftySafeProtection/issues)
 
 
-KubeJS 8 上游当前仅发布 Minecraft 26.1.2 版本。本分支保留相同脚本接口；26.1、26.1.1、26.2、26.3 需要等待对应的上游构建，暂不能承诺安装兼容。
+本分支已适配 KubeJS 8，支持通过脚本添加、覆盖、移除安全箱和背包内容器定义，并支持 `/reload` 重载。
+
+[KubeJS 8 接口与重载说明](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/docs/kubejs8.md) · [完整定义示例](https://github.com/roylinglrl/LoftySafeProtection/tree/neoforge/26.1.2/examples/kubejs8)

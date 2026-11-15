@@ -18,7 +18,7 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 
 多人游戏时，客户端和服务端均需安装本模组。JEI 与 KubeJS 是可选组件。
 
-KubeJS 8 上游当前仅发布 Minecraft 26.1.2 版本。本分支保留相同脚本接口；26.1、26.1.1、26.2、26.3 需要等待对应的上游构建，暂不能承诺安装兼容。
+本分支已适配 KubeJS 8，支持通过脚本添加、覆盖、移除安全箱和背包内容器定义，并支持 `/reload` 重载。
 
 ## 安全箱
 
@@ -121,6 +121,8 @@ KubeJS 8 上游当前仅发布 Minecraft 26.1.2 版本。本分支保留相同�
 `filter.mode` 可使用 `whitelist` 或 `blacklist`，`items` 为物品 ID 列表，`tags` 为物品标签 ID 列表，标签 ID 不加 `#`。背包内容器使用相同的容量和过滤结构，需填写 `translation_key`，并不使用安全箱专属的 `experience` 设置。
 
 ## KubeJS 8 扩展
+
+完整接口、安装方式与重载说明见 [KubeJS 8 文档](docs/kubejs8.md)，可直接使用的安全箱与收纳包定义见 [完整示例](examples/kubejs8)。
 
 将脚本放入 `kubejs/server_scripts/`，通过 `SafeEvents.definitions` 添加、覆盖或移除定义。事件在数据包定义加载后执行，因此可移除来自其他数据包的安全箱或背包内容器。修改后使用 `/reload` 重载。
 

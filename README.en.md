@@ -18,7 +18,7 @@ Lofty Safe Protection adds a safe box side panel to the player inventory, alongs
 
 Install the mod on both the client and server for multiplayer. JEI and KubeJS are optional.
 
-Upstream KubeJS 8 currently publishes builds only for Minecraft 26.1.2. This branch preserves the same scripting API; 26.1, 26.1.1, 26.2, and 26.3 require matching upstream builds before installation compatibility can be verified.
+This branch supports KubeJS 8 scripts that add, replace, and remove safe box and portable container definitions, with `/reload` support.
 
 ## Safe Boxes
 
@@ -121,6 +121,8 @@ Save this as `data/example/safeboxes/custom_safe.json`. Supply textures and loca
 Set `filter.mode` to `whitelist` or `blacklist`. `items` contains item IDs, and `tags` contains item tag IDs without a leading `#`. Portable containers use the same capacity and filter structure, require a `translation_key`, and do not use the safe-box-only `experience` setting.
 
 ## KubeJS 8 Integration
+
+See the [KubeJS 8 documentation](docs/kubejs8.en.md) for the API and reload behavior, and the [complete example](examples/kubejs8) for ready-to-use safe box and pouch definitions.
 
 Place scripts in `kubejs/server_scripts/` and use `SafeEvents.definitions` to add, replace, or remove definitions. The event runs after data pack definitions load, allowing scripts to remove safe boxes or portable containers supplied by other data packs. Use `/reload` after changing scripts.
 

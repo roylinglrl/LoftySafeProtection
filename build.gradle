@@ -95,6 +95,7 @@ tasks.register('stageTestClasses', Sync) {
 tasks.withType(Test).configureEach {
     useJUnitPlatform()
     inputs.dir('examples/kubejs')
+    inputs.dir('examples/kubejs8')
     systemProperty 'lsp.testProjectDir', projectDir.absolutePath
     dependsOn 'stageTestClasses'
     include '**/*Test.class'
@@ -119,6 +120,7 @@ if (project.hasProperty('startupCheck')) {
             def game = file('build/startup-game')
             game.mkdirs()
             copy { from 'examples/kubejs'; into new File(game, 'kubejs') }
+            copy { from 'src/test/resources/kubejs8'; into new File(game, 'kubejs') }
             new File(game, 'eula.txt').text = 'eula=true\n'
             new File(game, 'server.properties').text = 'online-mode=false\nserver-ip=127.0.0.1\nserver-port=0\nlevel-type=minecraft:flat\ngenerator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","lakes":false,"features":false}\ngenerate-structures=false\nspawn-protection=0\nmax-tick-time=-1\n'
             delete file('build/reports/server-startup/result.txt')

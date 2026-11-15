@@ -48,7 +48,7 @@ Optionally install **KubeJS 8** and use `SafeEvents.definitions` to add, replace
 
 - [Safe box JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
 - [Map Pouch JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
-- [5×5 SICC Pouch KubeJS example](https://github.com/roylinglrl/LoftySafeProtection/tree/main/examples/kubejs)
+- [5×5 SICC Pouch KubeJS example](https://github.com/roylinglrl/LoftySafeProtection/tree/neoforge/26.1.2/examples/kubejs)
 - [Full configuration and usage documentation](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/README.en.md)
 
 The SICC Pouch is an optional repository example demonstrating dedicated storage rules for nuggets, dyes, dusts, paper, banner patterns, smithing templates, and enchanted books.
@@ -62,4 +62,6 @@ Install the mod on both the client and server for multiplayer. JEI and KubeJS ar
 [Source and documentation](https://github.com/roylinglrl/LoftySafeProtection) · [Report an issue](https://github.com/roylinglrl/LoftySafeProtection/issues)
 
 
-Upstream KubeJS 8 currently publishes builds only for Minecraft 26.1.2. This branch preserves the same scripting API; 26.1, 26.1.1, 26.2, and 26.3 require matching upstream builds before installation compatibility can be verified.
+This branch supports KubeJS 8 scripts that add, replace, and remove safe box and portable container definitions, with `/reload` support.
+
+[KubeJS 8 API and reload guide](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/docs/kubejs8.en.md) · [Complete example](https://github.com/roylinglrl/LoftySafeProtection/tree/neoforge/26.1.2/examples/kubejs8)

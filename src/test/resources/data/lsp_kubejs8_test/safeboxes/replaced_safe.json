@@ -1,0 +1,9 @@
+{
+  "id": "lsp_kubejs8_test:replaced_safe",
+  "texture": "lofty_safe_protection:textures/item/map_pouch.png",
+  "capacity": {
+    "columns": 1,
+    "rows": 1
+  },
+  "translation_key": "item.lsp_kubejs8_test.replaced_safe"
+}

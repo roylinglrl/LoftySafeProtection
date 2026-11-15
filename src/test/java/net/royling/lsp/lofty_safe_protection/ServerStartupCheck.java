@@ -8,12 +8,19 @@ import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
 
 @EventBusSubscriber(modid = "lofty_safe_protection")
 public final class ServerStartupCheck {
+    private static int syncEvents;
+
+    @SubscribeEvent public static void synced(OnDatapackSyncEvent event) {
+        if (Boolean.getBoolean("lsp.startupCheck")) syncEvents++;
+    }
+
     @SubscribeEvent public static void started(ServerStartedEvent event) throws Exception {
         if (!Boolean.getBoolean("lsp.startupCheck")) return;
         try {
@@ -35,10 +42,21 @@ public final class ServerStartupCheck {
                 var sicc = InventoryContainerManager.definitions.get(net.minecraft.resources.Identifier.parse("kubejs:sicc_pouch"));
                 require(sicc != null && sicc.columns() == 5 && sicc.rows() == 5, "KubeJS SICC definition event failed");
                 require(sicc.accepts(new ItemStack(Items.ENCHANTED_BOOK)), "KubeJS item filter failed");
+                KubeJs8RuntimeCheck.verify(321, true);
+                Path script = Path.of("kubejs/server_scripts/lsp_integration.js");
+                String source = Files.readString(script, StandardCharsets.UTF_8);
+                String updated = source.replace("capacity: 321", "capacity: 654")
+                        .replace("  event.addSafeBox('lsp_kubejs8_test:retired_safe', 'lofty_safe_protection:textures/safebox/stone_safe_box.png', 2, 2)", "");
+                require(!source.equals(updated), "Reload fixture was not updated");
+                Files.writeString(script, updated, StandardCharsets.UTF_8);
+                int previousSyncs = syncEvents;
+                event.getServer().reloadResources(event.getServer().getPackRepository().getSelectedIds()).join();
+                KubeJs8RuntimeCheck.verify(654, false);
+                require(syncEvents > previousSyncs, "Definition reload did not trigger client data synchronization");
             }
             Path report = Path.of(System.getProperty("lsp.testProjectDir"), "build", "reports", "server-startup", "result.txt");
             Files.createDirectories(report.getParent());
-            Files.writeString(report, "PASS: default definitions, item bindings, XP settings, live item tags, filters and optional KubeJS integration", StandardCharsets.UTF_8);
+            Files.writeString(report, "PASS: default definitions, item bindings, XP settings, live item tags, filters, KubeJS 8 add/replace/remove, script reload and definition synchronization", StandardCharsets.UTF_8);
         } finally { event.getServer().halt(false); }
     }
     private static void require(boolean value, String message) {
