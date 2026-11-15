@@ -12,15 +12,15 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import net.minecraft.client.gui.components.Tooltip;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import java.util.function.Consumer;
 
 public final class SafeBoxPanel {
-    private static final ResourceLocation BACKGROUND=SafeBoxManager.id("textures/gui/background.png"),SLOT=SafeBoxManager.id("textures/gui/slot.png");
+    private static final Identifier BACKGROUND=SafeBoxManager.id("textures/gui/background.png"),SLOT=SafeBoxManager.id("textures/gui/slot.png");
     private static final SafeBoxPanelAnimation MOTION=new SafeBoxPanelAnimation();
     private static SafeBoxContainer owner;
     private static SafeBoxPanelLayout.Frame frame;
@@ -55,46 +55,46 @@ public final class SafeBoxPanel {
         }
         return new Rect2i(left+SafeBoxPanelLayout.OFFSET_X,top+SafeBoxPanelLayout.BOTTOM-height,width,height);
     }
-    public static void background(GuiGraphics g,int x,int y,int width,int height){
+    public static void background(GuiGraphicsExtractor g,int x,int y,int width,int height){
         var texture=BACKGROUND;
-        com.mojang.blaze3d.systems.RenderSystem.enableBlend();
-        com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
+
+
         for(var p:NineSliceLayout.patches(x,y,width,height))
-            g.blit(texture,p.x(),p.y(),p.width(),p.height(),(float)p.u(),(float)p.v(),p.sourceWidth(),p.sourceHeight(),32,32);
-        com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+            g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,texture,p.x(),p.y(),(float)p.u(),(float)p.v(),p.width(),p.height(),p.sourceWidth(),p.sourceHeight(),32,32);
+
     }
-    public static void draw(GuiGraphics g,int left,int top){
+    public static void draw(GuiGraphicsExtractor g,int left,int top){
         var box=storage();if(box==null||frame==null||frame.progress()<=0)return;
         background(g,frame.x(),frame.y(),frame.width(),frame.height());
         cell(g,box,0,SafeBoxPanelLayout.equipmentX(left),SafeBoxPanelLayout.equipmentY(top));
         if(box.interactive)ContainerActionIcons.outline(g,SafeBoxPanelLayout.equipmentX(left),SafeBoxPanelLayout.equipmentY(top),0xffe8be57);
         g.enableScissor(frame.x()+4,frame.y()+4,frame.x()+frame.width()-4,frame.y()+frame.height()-1);
-        g.pose().pushPose();g.pose().translate(SafeBoxPanelLayout.cargoX(left,0),SafeBoxPanelLayout.equipmentY(top)+16,0);
+        g.pose().pushMatrix();g.pose().translate(SafeBoxPanelLayout.cargoX(left,0),SafeBoxPanelLayout.equipmentY(top)+16);
         float scaleX=frame.progress(),scaleY=frame.progress();
-        g.pose().scale(scaleX,scaleY,1);
+        g.pose().scale(scaleX,scaleY);
         for(int r=0;r<box.state().rows;r++)for(int c=0;c<box.state().columns;c++)cell(g,box,1+r*9+c,c*18,-16-18*(box.state().rows-1-r));
-        g.pose().popPose();
+        g.pose().popMatrix();
         SafeBoxExperienceControls.draw(g,box,left,top,frame.progress());
         g.disableScissor();
     }
-    private static void cell(GuiGraphics g,SafeBoxContainer box,int index,int x,int y){
-        var texture=SLOT;g.blit(texture,x-1,y-1,0,0,18,18,18,18);
-        if(!box.interactive&&!box.getItem(index).isEmpty())g.renderItem(box.getItem(index),x,y);
+    private static void cell(GuiGraphicsExtractor g,SafeBoxContainer box,int index,int x,int y){
+        var texture=SLOT;g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,texture,x-1,y-1,0,0,18,18,18,18);
+        if(!box.interactive&&!box.getItem(index).isEmpty())g.item(box.getItem(index),x,y);
     }
     private static void request(boolean expanded,Consumer<Boolean> send){var box=storage();if(box!=null&&box.expanded!=expanded){box.expanded=expanded;box.interactive=false;send.accept(expanded);}}
     public static Button button(Consumer<Boolean> send){return new Button(0,0,SafeBoxPanelLayout.ICON,SafeBoxPanelLayout.ICON,Component.translatable("container.lofty_safe_protection"),b->{var box=storage();if(box!=null)request(!box.expanded,send);},supplier->supplier.get()){
-        @Override protected void renderWidget(GuiGraphics g,int mouseX,int mouseY,float partial){
+        @Override protected void extractContents(GuiGraphicsExtractor g,int mouseX,int mouseY,float partial){
             background(g,getX(),getY(),SafeBoxPanelLayout.ICON,SafeBoxPanelLayout.ICON);
             var box=storage();var def=box==null?null:SafeBoxManager.definition(box.getItem(0));
             var texture=def==null?SafeBoxManager.id("textures/safebox/safe_box_default.png"):def.texture();
-            com.mojang.blaze3d.systems.RenderSystem.enableBlend();
-            com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
-            g.blit(texture,getX()+3,getY()+3,0,0,16,16,16,16);
-            com.mojang.blaze3d.systems.RenderSystem.disableBlend();
+
+
+            g.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,texture,getX()+3,getY()+3,0,0,16,16,16,16);
+
         }
     };}
     public static Button closeButton(Consumer<Boolean> send){return new Button(0,0,10,10,Component.translatable("gui.close"),b->request(false,send),supplier->supplier.get()){
-        @Override protected void renderWidget(GuiGraphics g,int mouseX,int mouseY,float partial){
+        @Override protected void extractContents(GuiGraphicsExtractor g,int mouseX,int mouseY,float partial){
             int color=isHoveredOrFocused()?0xffaa3030:0xff404040;
             for(int i=0;i<6;i++){g.fill(getX()+2+i,getY()+2+i,getX()+3+i,getY()+3+i,color);g.fill(getX()+7-i,getY()+2+i,getX()+8-i,getY()+3+i,color);}
         }
@@ -104,9 +104,9 @@ public final class SafeBoxPanel {
         var button=new Button(0,0,10,10,label,b->{
             var player=Minecraft.getInstance().player;
             if(player!=null&&player.containerMenu==player.inventoryMenu&&player.containerMenu.getCarried().isEmpty())
-                PacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(player.containerMenu.containerId,-1,action));
+                net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(player.containerMenu.containerId,-1,action));
         },supplier->supplier.get()){
-            @Override protected void renderWidget(GuiGraphics graphics,int mouseX,int mouseY,float partial){ContainerActionIcons.draw(graphics,getX(),getY(),action,isHoveredOrFocused());}
+            @Override protected void extractContents(GuiGraphicsExtractor graphics,int mouseX,int mouseY,float partial){ContainerActionIcons.draw(graphics,getX(),getY(),action,isHoveredOrFocused());}
         };
         button.setTooltip(Tooltip.create(label));
         return button;

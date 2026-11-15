@@ -32,7 +32,7 @@ public final class InventoryContainerScreenEvents {
 
     @SubscribeEvent
     public static void preview(RenderTooltipEvent.GatherComponents event) {
-        if (!Screen.hasShiftDown()) return;
+        if (!(com.mojang.blaze3d.platform.InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_LEFT_SHIFT) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(Minecraft.getInstance().getWindow(), GLFW.GLFW_KEY_RIGHT_SHIFT))) return;
         var summary = ContainerContentsSummary.fromItem(event.getItemStack());
         if (summary == null) {
             var box = SafeBoxPanel.storage();
@@ -95,7 +95,7 @@ public final class InventoryContainerScreenEvents {
             return;
         }
         if (button != 1 || !screen.getMenu().getCarried().isEmpty()) return;
-        if (screen.width < 379 && screen instanceof RecipeUpdateListener recipe && recipe.getRecipeBookComponent().isVisible()) return;
+        if (screen.width < 379 && screen instanceof RecipeUpdateListener recipe && screen.children().stream().anyMatch(child -> child instanceof net.minecraft.client.gui.screens.recipebook.RecipeBookComponent<?> book && book.isVisible())) return;
         int count = InventoryContainerPanel.hostSlotCount();
         for (int index = 0; index < count; index++) {
             Slot slot = screen.getMenu().slots.get(index);
@@ -114,7 +114,7 @@ public final class InventoryContainerScreenEvents {
         var saved = new ArrayList<>(children);
         children.clear();
         try {
-            screen.mouseClicked(x, y, button);
+            screen.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(x, y, new net.minecraft.client.input.MouseButtonInfo(button, 0)), false);
         } finally {
             children.addAll(saved);
         }

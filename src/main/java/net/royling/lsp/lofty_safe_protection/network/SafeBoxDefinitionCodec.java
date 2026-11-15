@@ -4,7 +4,7 @@ import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 import net.royling.lsp.lofty_safe_protection.registry.SafeBoxCreativeTab;
 
 import com.google.gson.*;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import java.util.*;
 
 public final class SafeBoxDefinitionCodec {
@@ -22,8 +22,8 @@ public final class SafeBoxDefinitionCodec {
         return all.toString();
     }
     public static void decode(String json) {
-        Map<ResourceLocation,SafeBoxManager.Definition> next=new HashMap<>();
-        for(JsonElement e:JsonParser.parseString(json).getAsJsonArray()) { JsonObject o=e.getAsJsonObject(); var id=ResourceLocation.parse(o.get("id").getAsString()); next.put(id,SafeBoxManager.parse(id,o)); }
+        Map<Identifier,SafeBoxManager.Definition> next=new HashMap<>();
+        for(JsonElement e:JsonParser.parseString(json).getAsJsonArray()) { JsonObject o=e.getAsJsonObject(); var id=Identifier.parse(o.get("id").getAsString()); next.put(id,SafeBoxManager.parse(id,o)); }
         SafeBoxManager.definitions=Map.copyOf(next); SafeBoxCreativeTab.refresh.run();
     }
 }

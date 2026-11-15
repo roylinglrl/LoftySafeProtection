@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:special",
+    "base": "lofty_safe_protection:item/inventory_container",
+    "model": {
+      "type": "lofty_safe_protection:container"
+    }
+  }
+}

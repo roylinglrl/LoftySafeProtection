@@ -12,14 +12,40 @@ import java.util.*;
 
 public final class SafeBoxSavedData extends SavedData {
     private final Map<UUID, PlayerStorage> players = new HashMap<>();
+    public static final com.mojang.serialization.Codec<SafeBoxSavedData> CODEC = com.mojang.serialization.Codec.unboundedMap(net.minecraft.core.UUIDUtil.STRING_CODEC, PlayerStorage.CODEC).xmap(SafeBoxSavedData::new, store -> Map.copyOf(store.players));
+    public static final net.minecraft.world.level.saveddata.SavedDataType<SafeBoxSavedData> TYPE = new net.minecraft.world.level.saveddata.SavedDataType<>(SafeBoxManager.id("players"), SafeBoxSavedData::new, CODEC, null);
+    public SafeBoxSavedData() {}
+    private SafeBoxSavedData(Map<UUID, PlayerStorage> loaded) {
+        players.putAll(loaded);
+        players.values().forEach(state -> state.dirty = this::setDirty);
+    }
     public static SafeBoxSavedData get(ServerPlayer player) {
-        return player.level().getServer().overworld().getDataStorage().computeIfAbsent(new SavedData.Factory<>(SafeBoxSavedData::new, SafeBoxSavedData::load, null), "safebox_players");
+        return player.level().getServer().overworld().getDataStorage().computeIfAbsent(TYPE);
     }
     public PlayerStorage forPlayer(UUID uuid) { return players.computeIfAbsent(uuid, key -> new PlayerStorage(this::setDirty)); }
     public static final class PlayerStorage extends SimpleContainer {
+        private static final com.mojang.serialization.Codec<List<ItemStack>> ITEMS = ItemStack.OPTIONAL_CODEC.listOf().validate(items -> items.size() == 55 ? com.mojang.serialization.DataResult.success(items) : com.mojang.serialization.DataResult.error(() -> "Expected 55 safe box slots"));
+        public static final com.mojang.serialization.Codec<PlayerStorage> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.create(instance -> instance.group(
+                com.mojang.serialization.Codec.intRange(0, 9).fieldOf("Columns").forGetter(state -> state.columns),
+                com.mojang.serialization.Codec.intRange(0, 6).fieldOf("Rows").forGetter(state -> state.rows),
+                com.mojang.serialization.Codec.intRange(0, Integer.MAX_VALUE).optionalFieldOf("Experience", 0).forGetter(PlayerStorage::experience),
+                ITEMS.fieldOf("Items").forGetter(PlayerStorage::snapshot)
+        ).apply(instance, PlayerStorage::new));
+        private PlayerStorage(int columns, int rows, int experience, List<ItemStack> items) {
+            this(() -> {});
+            this.columns = columns;
+            this.rows = rows;
+            this.experience = experience;
+            for (int slot = 0; slot < 55; slot++) setItem(slot, items.get(slot));
+        }
+        private List<ItemStack> snapshot() {
+            List<ItemStack> items = new ArrayList<>(55);
+            for (int slot = 0; slot < 55; slot++) items.add(getItem(slot).copy());
+            return items;
+        }
         public int columns, rows;
         private int experience;
-        private final Runnable dirty;
+        private Runnable dirty;
         public PlayerStorage(Runnable dirty) { super(55); this.dirty = dirty; }
         public int experience() { return experience; }
         public void setExperience(int value) {
@@ -33,32 +59,5 @@ public final class SafeBoxSavedData extends SavedData {
             columns = def == null ? 0 : def.columns(); rows = def == null ? 0 : def.rows();
         }
         @Override public void setChanged() { super.setChanged(); if (dirty != null) dirty.run(); }
-    }
-    private static SafeBoxSavedData load(CompoundTag root, net.minecraft.core.HolderLookup.Provider registries) {
-        SafeBoxSavedData store = new SafeBoxSavedData();
-        for (String key : root.getAllKeys()) {
-            CompoundTag tag = root.getCompound(key);
-            PlayerStorage state = store.forPlayer(UUID.fromString(key));
-            state.setExperience(tag.getInt("Experience"));
-            state.columns = tag.getInt("Columns"); state.rows = tag.getInt("Rows");
-            if (state.columns < 0 || state.columns > 9 || state.rows < 0 || state.rows > 6)
-                throw new IllegalStateException("Invalid saved safe box dimensions for " + key);
-            ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
-            for (int i=0;i<items.size();i++) { CompoundTag item = items.getCompound(i); int slot = item.getInt("Slot");
-                if (slot < 0 || slot >= 55) throw new IllegalStateException("Invalid saved safe box slot");
-                state.setItem(slot, ItemStack.parseOptional(registries,item));
-            }
-        }
-        return store;
-    }
-    @Override public CompoundTag save(CompoundTag root, net.minecraft.core.HolderLookup.Provider registries) {
-        players.forEach((uuid, state) -> {
-            CompoundTag tag = new CompoundTag(); tag.putInt("Columns", state.columns); tag.putInt("Rows", state.rows);
-            tag.putInt("Experience", state.experience());
-            ListTag items = new ListTag();
-            for (int i=0;i<55;i++) if (!state.getItem(i).isEmpty()) { CompoundTag item = (CompoundTag) state.getItem(i).save(registries,new CompoundTag()); item.putInt("Slot", i); items.add(item); }
-            tag.put("Items", items); root.put(uuid.toString(), tag);
-        });
-        return root;
     }
 }
