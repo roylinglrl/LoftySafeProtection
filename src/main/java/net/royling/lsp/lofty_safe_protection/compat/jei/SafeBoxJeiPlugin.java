@@ -16,12 +16,12 @@ import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @JeiPlugin
 public final class SafeBoxJeiPlugin implements IModPlugin, IGuiContainerHandler<InventoryScreen> {
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return SafeBoxManager.id("inventory_sidecar");
     }
 

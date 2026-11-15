@@ -1,12 +1,12 @@
 package net.royling.lsp.lofty_safe_protection.client.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.royling.lsp.lofty_safe_protection.menu.ContainerActions;
 
 public final class ContainerActionIcons {
     private ContainerActionIcons() {}
 
-    public static void draw(GuiGraphics graphics, int x, int y, int action, boolean hover) {
+    public static void draw(GuiGraphicsExtractor graphics, int x, int y, int action, boolean hover) {
         int color = hover ? 0xffeeeeee : 0xff404040;
         if (hover) graphics.fill(x, y, x + 10, y + 10, 0xff777777);
         if (action == ContainerActions.SORT) {
@@ -21,7 +21,7 @@ public final class ContainerActionIcons {
         }
     }
 
-    public static void outline(GuiGraphics graphics, int x, int y, int color) {
+    public static void outline(GuiGraphicsExtractor graphics, int x, int y, int color) {
         graphics.fill(x - 1, y - 1, x + 17, y, color);
         graphics.fill(x - 1, y + 16, x + 17, y + 17, color);
         graphics.fill(x - 1, y, x, y + 16, color);

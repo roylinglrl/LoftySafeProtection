@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContainerActionsTest {
-    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
+    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize(); }
 
     @Test
     void sortingMergesCompatibleStacksAndPreservesComponentsAndOutsideSlots() {

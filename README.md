@@ -10,13 +10,15 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 
 | 项目 | 当前支持 |
 | --- | --- |
-| Minecraft | 1.21.1 |
-| 加载器 | NeoForge 21.1.265 及以上的 1.21.1 版本 |
-| Java | 21 |
+| Minecraft | 26.1.1 |
+| 加载器 | NeoForge 26.1.1.15-beta 及以上的 26.1.1 版本 |
+| Java | 25 |
 | 模组 ID | `lofty_safe_protection` |
-| 可选兼容 | JEI、KubeJS 7 |
+| 可选兼容 | JEI、KubeJS 8 |
 
 多人游戏时，客户端和服务端均需安装本模组。JEI 与 KubeJS 是可选组件。
+
+KubeJS 8 上游当前仅发布 Minecraft 26.1.2 版本。本分支保留相同脚本接口；26.1、26.1.1、26.2、26.3 需要等待对应的上游构建，暂不能承诺安装兼容。
 
 ## 安全箱
 
@@ -118,7 +120,7 @@ Lofty Safe Protection 为玩家物品栏添加安全箱侧栏，并提供可在�
 
 `filter.mode` 可使用 `whitelist` 或 `blacklist`，`items` 为物品 ID 列表，`tags` 为物品标签 ID 列表，标签 ID 不加 `#`。背包内容器使用相同的容量和过滤结构，需填写 `translation_key`，并不使用安全箱专属的 `experience` 设置。
 
-## KubeJS 7 扩展
+## KubeJS 8 扩展
 
 将脚本放入 `kubejs/server_scripts/`，通过 `SafeEvents.definitions` 添加、覆盖或移除定义。事件在数据包定义加载后执行，因此可移除来自其他数据包的安全箱或背包内容器。修改后使用 `/reload` 重载。
 
@@ -172,7 +174,7 @@ SafeEvents.definitions(event => {
 
 ## 开发与构建
 
-使用 Java 21，在项目根目录执行：
+使用 Java 25，在项目根目录执行：
 
 ```powershell
 .\gradlew.bat build
@@ -184,7 +186,9 @@ SafeEvents.definitions(event => {
 .\gradlew.bat runClient
 ```
 
-开发运行环境通过 Maven 加载 JEI、KubeJS 和 Rhino，并将仓库内的 KubeJS 示例复制到开发客户端目录。
+开发运行环境通过 Maven 加载 JEI。KubeJS 与 Rhino 当前仅用于编译脚本扩展接口，待上游发布匹配版本后再启用运行依赖。KubeJS 示例会复制到开发客户端目录。
+
+`./gradlew build` 运行回归测试；`./gradlew verifyServerStartup -PstartupCheck` 在隔离服务端验证数据包和可用的脚本扩展。测试世界和报告均位于 `build/` 下。
 
 ## 许可证
 

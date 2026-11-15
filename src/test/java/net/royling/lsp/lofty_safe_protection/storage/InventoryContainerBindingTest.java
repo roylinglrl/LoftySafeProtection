@@ -17,6 +17,7 @@ class InventoryContainerBindingTest {
     static void bootstrap() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize();
     }
 
     @Test
@@ -27,7 +28,7 @@ class InventoryContainerBindingTest {
         var binding = new InventoryContainerBinding(new Slot(parent, 0, 0, 0));
         assertTrue(binding.write(List.of(new ItemStack(Items.MAP, 3)), 4, 4));
         assertEquals(3, parent.getItem(0).get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
-        assertEquals(4, parent.getItem(0).get(DataComponents.CUSTOM_DATA).copyTag().getInt("ContainerColumns"));
+        assertEquals(4, parent.getItem(0).get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("ContainerColumns", 0));
         assertTrue(parent.changes > before);
         assertTrue(binding.matches());
     }

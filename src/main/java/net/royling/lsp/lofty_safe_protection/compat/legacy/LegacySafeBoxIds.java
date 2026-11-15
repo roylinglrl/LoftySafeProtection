@@ -5,7 +5,7 @@ import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 
 import java.util.Set;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
 public final class LegacySafeBoxIds {
@@ -15,7 +15,7 @@ public final class LegacySafeBoxIds {
 
     private LegacySafeBoxIds() {}
 
-    public static ResourceLocation definitionId(ResourceLocation original) {
+    public static Identifier definitionId(Identifier original) {
         if (original != null && original.getNamespace().equals(OLD_NAMESPACE)
                 && BUILTIN_DEFINITIONS.contains(original.getPath())) return SafeBoxManager.id(original.getPath());
         return original;
@@ -23,9 +23,9 @@ public final class LegacySafeBoxIds {
 
     public static void registerAliases(RegisterEvent event) {
         if (event.getRegistryKey().equals(Registries.ITEM) || event.getRegistryKey().equals(Registries.MENU)) {
-            event.getRegistry().addAlias(ResourceLocation.fromNamespaceAndPath(OLD_NAMESPACE, "safe_box"), SafeBoxManager.id("safe_box"));
+            event.getRegistry().addAlias(Identifier.fromNamespaceAndPath(OLD_NAMESPACE, "safe_box"), SafeBoxManager.id("safe_box"));
         } else if (event.getRegistryKey().equals(Registries.CREATIVE_MODE_TAB)) {
-            event.getRegistry().addAlias(ResourceLocation.fromNamespaceAndPath(OLD_NAMESPACE, "safeboxes"), SafeBoxManager.id("safeboxes"));
+            event.getRegistry().addAlias(Identifier.fromNamespaceAndPath(OLD_NAMESPACE, "safeboxes"), SafeBoxManager.id("safeboxes"));
         }
     }
 }

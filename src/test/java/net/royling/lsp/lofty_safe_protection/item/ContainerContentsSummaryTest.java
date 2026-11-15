@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.Set;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -19,14 +19,15 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ContainerContentsSummaryTest {
-    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
+    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize(); }
 
     @Test
     void previewAndUsageRetainStoredDimensionsAndCountOccupiedSlotsInsteadOfItemAmounts() {
         var oldItem = InventoryContainerManager.ITEM;
         var oldDefinitions = InventoryContainerManager.definitions;
         try {
-            var id = ResourceLocation.parse("test:pouch");
+            var id = Identifier.parse("test:pouch");
             InventoryContainerManager.ITEM = Items.BUNDLE;
             InventoryContainerManager.definitions = Map.of(id, new InventoryContainerDefinition(id, "test", id, 2, 2, false, Set.of(), Set.of()));
             var pouch = InventoryContainerManager.stack(id);

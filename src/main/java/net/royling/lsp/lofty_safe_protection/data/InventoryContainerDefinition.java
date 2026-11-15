@@ -8,13 +8,13 @@ import java.util.Set;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 
-public record InventoryContainerDefinition(ResourceLocation id, String translationKey,
-        ResourceLocation texture, int columns, int rows, boolean whitelist,
-        Set<ResourceLocation> items, Set<ResourceLocation> tags) {
+public record InventoryContainerDefinition(Identifier id, String translationKey,
+        Identifier texture, int columns, int rows, boolean whitelist,
+        Set<Identifier> items, Set<Identifier> tags) {
     public Component title() {
         return Component.translatable(translationKey);
     }
@@ -26,15 +26,15 @@ public record InventoryContainerDefinition(ResourceLocation id, String translati
         return whitelist == matches;
     }
 
-    public static InventoryContainerDefinition parse(ResourceLocation fileId, JsonObject json) {
-        ResourceLocation id = ResourceLocation.parse(json.get("id").getAsString());
+    public static InventoryContainerDefinition parse(Identifier fileId, JsonObject json) {
+        Identifier id = Identifier.parse(json.get("id").getAsString());
         if (!id.equals(fileId)) throw new IllegalArgumentException("id must match data file path: " + fileId);
         JsonElement translationKey = json.get("translation_key");
         if (translationKey == null || !translationKey.isJsonPrimitive()
                 || !translationKey.getAsJsonPrimitive().isString() || translationKey.getAsString().isBlank())
             throw new IllegalArgumentException("translation_key must be a non-blank string");
         String key = translationKey.getAsString();
-        ResourceLocation texture = ResourceLocation.parse(json.has("texture")
+        Identifier texture = Identifier.parse(json.has("texture")
                 ? json.get("texture").getAsString() : "minecraft:textures/item/bundle.png");
         JsonObject capacity = json.getAsJsonObject("capacity");
         int columns = capacity.get("columns").getAsBigDecimal().intValueExact();
@@ -48,9 +48,9 @@ public record InventoryContainerDefinition(ResourceLocation id, String translati
                 mode.equals("whitelist"), ids(filter, "items"), ids(filter, "tags"));
     }
 
-    private static Set<ResourceLocation> ids(JsonObject json, String key) {
-        Set<ResourceLocation> result = new HashSet<>();
-        if (json.has(key)) for (JsonElement entry : json.getAsJsonArray(key)) result.add(ResourceLocation.parse(entry.getAsString()));
+    private static Set<Identifier> ids(JsonObject json, String key) {
+        Set<Identifier> result = new HashSet<>();
+        if (json.has(key)) for (JsonElement entry : json.getAsJsonArray(key)) result.add(Identifier.parse(entry.getAsString()));
         return Set.copyOf(result);
     }
 

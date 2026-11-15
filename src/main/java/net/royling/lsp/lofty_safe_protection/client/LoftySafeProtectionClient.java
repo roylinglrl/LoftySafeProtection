@@ -7,7 +7,7 @@ import net.royling.lsp.lofty_safe_protection.client.gui.ContainerActionIcons;
 import net.royling.lsp.lofty_safe_protection.client.gui.InventoryContainerPanel;
 import net.royling.lsp.lofty_safe_protection.menu.ContainerActions;
 import net.royling.lsp.lofty_safe_protection.client.renderer.SafeBoxItemRenderer;
-import net.royling.lsp.lofty_safe_protection.client.renderer.TextureItemRenderer;
+
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 import net.royling.lsp.lofty_safe_protection.item.SafeBoxTooltips;
@@ -32,21 +32,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 public final class LoftySafeProtectionClient {
     @SubscribeEvent public static void menus(RegisterMenuScreensEvent e){SafeBoxCreativeTab.refresh=SafeBoxPanel::refreshCreative;}
     @SubscribeEvent public static void tooltipComponents(RegisterClientTooltipComponentFactoriesEvent event){event.register(ContainerPreview.class,preview->preview);}
-    private static void sendExpanded(boolean expanded){PacketDistributor.sendToServer(new SafeBoxPayloads.SetExpandedPayload(expanded));}
-    @SubscribeEvent public static void items(RegisterClientExtensionsEvent e){e.registerItem(new IClientItemExtensions(){
-        private BlockEntityWithoutLevelRenderer renderer;
-        @Override public BlockEntityWithoutLevelRenderer getCustomRenderer(){
-            if(renderer==null) renderer=new BlockEntityWithoutLevelRenderer(Minecraft.getInstance().getBlockEntityRenderDispatcher(),Minecraft.getInstance().getEntityModels()) {
-                @Override public void renderByItem(ItemStack stack,ItemDisplayContext context,PoseStack pose,MultiBufferSource buffers,int light,int overlay){
-                    if (stack.is(InventoryContainerManager.ITEM)) {
-                        var definition = InventoryContainerManager.definition(stack);
-                        var texture = definition == null ? net.minecraft.resources.ResourceLocation.withDefaultNamespace("textures/item/bundle.png") : definition.texture();
-                        TextureItemRenderer.render(texture, pose, buffers, light, overlay);
-                    } else SafeBoxItemRenderer.render(stack,context,pose,buffers,light,overlay);
-                }
-            };return renderer;
-        }
-    },SafeBoxManager.ITEM,InventoryContainerManager.ITEM);}
+    private static void sendExpanded(boolean expanded){net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new SafeBoxPayloads.SetExpandedPayload(expanded));}
+    @SubscribeEvent public static void models(RegisterSpecialModelRendererEvent event) {
+        event.register(SafeBoxManager.id("container"), SafeBoxItemRenderer.Unbaked.CODEC);
+    }
     @EventBusSubscriber(modid=SafeBoxManager.MOD,value=Dist.CLIENT)
     public static class InventoryScreenEvents {
         private static Button button;private static Button closeButton;private static InventoryScreen owner;
@@ -56,8 +45,8 @@ public final class LoftySafeProtectionClient {
         @SubscribeEvent public static void init(ScreenEvent.Init.Post event) {
             if(event.getScreen() instanceof InventoryScreen screen) {
                 owner=screen;button=SafeBoxPanel.button(LoftySafeProtectionClient::sendExpanded);closeButton=SafeBoxPanel.closeButton(LoftySafeProtectionClient::sendExpanded);
-                withdrawExperience=SafeBoxExperienceControls.button(false,p->PacketDistributor.sendToServer(p));
-                depositExperience=SafeBoxExperienceControls.button(true,p->PacketDistributor.sendToServer(p));
+                withdrawExperience=SafeBoxExperienceControls.button(false,p->net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(p));
+                depositExperience=SafeBoxExperienceControls.button(true,p->net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(p));
                 SafeBoxPanel.position(button,closeButton,screen.getGuiLeft(),screen.getGuiTop());event.addListener(button);event.addListener(closeButton);
                 SafeBoxExperienceControls.position(withdrawExperience,depositExperience,screen.getGuiLeft(),screen.getGuiTop());
                 event.addListener(withdrawExperience);event.addListener(depositExperience);
@@ -75,8 +64,8 @@ public final class LoftySafeProtectionClient {
                 SafeBoxPanel.positionActions(sortButton,depositMatchingButton,closeButton);
             }
         }
-        @SubscribeEvent public static void background(ContainerScreenEvent.Render.Background event) {
-            if(event.getContainerScreen() instanceof InventoryScreen screen) {
+        @SubscribeEvent public static void background(ScreenEvent.Render.Background event) {
+            if(event.getScreen() instanceof InventoryScreen screen) {
                 inventoryRendered=true;
                 SafeBoxPanel.draw(event.getGuiGraphics(),screen.getGuiLeft(),screen.getGuiTop());
             }
@@ -92,11 +81,11 @@ public final class LoftySafeProtectionClient {
                 if(message!=null&&!InventoryContainerPanel.contains(event.getMouseX(),event.getMouseY())){
                     var slot=screen.getSlotUnderMouse();
                     var graphics=event.getGuiGraphics();
-                    graphics.pose().pushPose();graphics.pose().translate(0,0,350);
+                    graphics.pose().pushMatrix();graphics.pose().translate(0,0);
                     ContainerActionIcons.outline(graphics,screen.getGuiLeft()+slot.x,screen.getGuiTop()+slot.y,0xffe34c4c);
-                    graphics.pose().popPose();
+                    graphics.pose().popMatrix();
                 }
-                if(message!=null)event.getGuiGraphics().renderTooltip(Minecraft.getInstance().font,message,event.getMouseX(),event.getMouseY());
+                if(message!=null)net.royling.lsp.lofty_safe_protection.client.gui.GuiTooltips.draw(event.getGuiGraphics(), Minecraft.getInstance().font,message,event.getMouseX(),event.getMouseY());
             }
         }
         @SubscribeEvent public static void close(ScreenEvent.Closing event){

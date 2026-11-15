@@ -16,18 +16,18 @@ description='''
 
 Protect valuables with safe boxes that retain their contents and stored XP on death.
 Open portable containers in draggable inventory windows, preview contents, sort items, and deposit matching stacks.
-Customize storage through JSON data packs and KubeJS 7, with JEI exclusion areas for storage panels.
+Customize storage through JSON data packs and KubeJS 8, with JEI exclusion areas for storage panels.
 '''
 [[dependencies.lofty_safe_protection]]
 modId="neoforge"
 type="required"
-versionRange="[21.1.265,)"
+versionRange="[26.1.1.15-beta,)"
 ordering="NONE"
 side="BOTH"
 [[dependencies.lofty_safe_protection]]
 modId="minecraft"
 type="required"
-versionRange="[1.21.1,1.21.2)"
+versionRange="[26.1.1]"
 ordering="NONE"
 side="BOTH"
 
@@ -37,6 +37,6 @@ config="lofty_safe_protection.mixins.json"
 [[dependencies.lofty_safe_protection]]
 modId="kubejs"
 type="optional"
-versionRange="[2101.7.2,)"
+versionRange="[26.1.2-8.0.0,)"
 ordering="AFTER"
 side="BOTH"
