@@ -1,8 +1,8 @@
 plugins { id 'net.neoforged.moddev' version '2.0.148' }
 group='net.royling.lsp'
 version='0.1.0'
-base { archivesName='lofty_safe_protection-neoforge-1.21.1' }
-java.toolchain.languageVersion=JavaLanguageVersion.of(21)
+base { archivesName='lofty_safe_protection-neoforge-26.3' }
+java.toolchain.languageVersion=JavaLanguageVersion.of(25)
 repositories {
     maven {
         url = uri('https://maven.latvian.dev/releases')
@@ -31,18 +31,16 @@ configurations {
 }
 
 dependencies {
-    compileOnly('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
-    compileOnly('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
-    localRuntime('dev.latvian.mods:kubejs-neoforge:2101.7.2-build.377') { transitive = false }
-    localRuntime('dev.latvian.mods:rhino:2101.2.7-build.81') { transitive = false }
-    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:${jei_version}")
-    localRuntime("mezz.jei:jei-1.21.1-neoforge:${jei_version}") {
+    compileOnly('dev.latvian.mods:kubejs-neoforge:26.1.2-8.0.8') { transitive = false }
+    compileOnly('dev.latvian.mods:rhino:2101.2.8-build.91') { transitive = false }
+    compileOnly("mezz.jei:jei-26.3-neoforge-api:${jei_version}")
+    localRuntime("mezz.jei:jei-26.3-neoforge:${jei_version}") {
         transitive = false
     }
 }
 
 neoForge {
-    version='21.1.265'
+    version='26.3.0.102'
     runs {
         client {
             client()
@@ -76,6 +74,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
+def scriptTestJars = sourceSets.main.compileClasspath.filter { it.name.startsWith('kubejs-neoforge-') || it.name.startsWith('rhino-') }
+
 def isolatedTestClasses = new File(System.getProperty('java.io.tmpdir'),
         "${rootProject.name}-test-classes-${Integer.toHexString(projectDir.absolutePath.hashCode())}")
 def stagedTestDependencies = sourceSets.test.runtimeClasspath.filter {
@@ -83,6 +83,7 @@ def stagedTestDependencies = sourceSets.test.runtimeClasspath.filter {
 }
 tasks.register('stageTestClasses', Sync) {
     dependsOn 'testClasses'
+    from(scriptTestJars.collect { zipTree(it) }) { include 'dev/**' }
     from sourceSets.main.output
     from sourceSets.test.output
     from(stagedTestDependencies) { into 'runtime' }
@@ -97,5 +98,37 @@ tasks.withType(Test).configureEach {
     testClassesDirs = files(isolatedTestClasses)
     classpath = files(isolatedTestClasses) + files(stagedTestDependencies.elements.map { locations ->
         locations.collect { new File(isolatedTestClasses, "runtime/${it.asFile.name}") }
-    }) + (sourceSets.test.runtimeClasspath - sourceSets.main.output - sourceSets.test.output - stagedTestDependencies)
+    }) + (sourceSets.test.runtimeClasspath - sourceSets.main.output - sourceSets.test.output - stagedTestDependencies - scriptTestJars)
 }
+
+if (project.hasProperty('startupCheck')) {
+    neoForge {
+        mods { lofty_safe_protection { sourceSet sourceSets.test } }
+        runs.server {
+            gameDirectory = file('build/startup-game')
+            systemProperty 'lsp.startupCheck', 'true'
+            systemProperty 'lsp.testProjectDir', projectDir.absolutePath
+        }
+    }
+    tasks.register('prepareServerStartupCheck') {
+        dependsOn 'testClasses'
+        doLast {
+            def game = file('build/startup-game')
+            game.mkdirs()
+            copy { from 'examples/kubejs'; into new File(game, 'kubejs') }
+            new File(game, 'eula.txt').text = 'eula=true\n'
+            new File(game, 'server.properties').text = 'online-mode=false\nserver-ip=127.0.0.1\nserver-port=0\nlevel-type=minecraft:flat\ngenerator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","lakes":false,"features":false}\ngenerate-structures=false\nspawn-protection=0\nmax-tick-time=-1\n'
+            delete file('build/reports/server-startup/result.txt')
+        }
+    }
+    tasks.named('runServer') { dependsOn 'prepareServerStartupCheck' }
+    tasks.register('verifyServerStartup') {
+        dependsOn 'runServer'
+        doLast {
+            def report = file('build/reports/server-startup/result.txt')
+            if (!report.isFile() || !report.text.startsWith('PASS:')) throw new GradleException('Server startup verification did not pass')
+        }
+    }
+}
+
+dependencies { testImplementation 'org.ow2.asm:asm-tree:9.8' }

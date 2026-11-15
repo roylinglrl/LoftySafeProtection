@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
@@ -21,7 +21,7 @@ import net.royling.lsp.lofty_safe_protection.menu.InventoryItemContainer;
 import net.royling.lsp.lofty_safe_protection.network.InventoryContainerPayloads;
 
 public final class InventoryContainerPanel {
-    private static final ResourceLocation SLOT = SafeBoxManager.id("textures/gui/slot.png");
+    private static final Identifier SLOT = SafeBoxManager.id("textures/gui/slot.png");
     private static final Map<Integer, Window> WINDOWS = new HashMap<>();
     private static final Map<Integer, Integer> PENDING = new HashMap<>();
     private static final WindowStack<Window> ORDER = new WindowStack<>();
@@ -53,7 +53,7 @@ public final class InventoryContainerPanel {
     }
 
     private static boolean visible(Window window) {
-        return owner != null && Minecraft.getInstance().screen == owner && window.storage.isOpen()
+        return owner != null && Minecraft.getInstance().gui.screen() == owner && window.storage.isOpen()
                 && window.state.bounds() != null && window.storage.columns() > 0 && window.storage.rows() > 0;
     }
 
@@ -83,12 +83,12 @@ public final class InventoryContainerPanel {
                 continue;
             }
             Slot source = storage.source();
-            window.state.update(storage.sourceSlot(), screen.getGuiLeft() + source.x, screen.getGuiTop() + source.y,
+            window.state.update(storage.sourceSlot(), screen.getLeftPos() + source.x, screen.getTopPos() + source.y,
                     storage.columns(), storage.rows(), screen.width, screen.height, System.nanoTime());
             var bounds = window.state.bounds();
             for (int cell = 0; cell < 54; cell++) {
                 Slot slot = screen.getMenu().slots.get(storage.firstSlot() + cell);
-                ((SlotPositionAccess) slot).lsp$position(bounds.slotX(cell) - screen.getGuiLeft(), bounds.slotY(cell) - screen.getGuiTop());
+                ((SlotPositionAccess) slot).lsp$position(bounds.slotX(cell) - screen.getLeftPos(), bounds.slotY(cell) - screen.getTopPos());
             }
         }
     }
@@ -176,7 +176,7 @@ public final class InventoryContainerPanel {
         window.state.reset();
         ORDER.raise(window);
         PENDING.put(index, slotId);
-        PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, index, slotId));
+        net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, index, slotId));
     }
 
     public static void acknowledge(int menuId, int windowId, int sourceSlot) {
@@ -188,7 +188,7 @@ public final class InventoryContainerPanel {
 
     private static void action(Window window, int action) {
         if (owner != null && window.storage.isOpen() && (action == ContainerActions.FOCUS || owner.getMenu().getCarried().isEmpty()))
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(owner.getMenu().containerId, window.storage.sourceSlot(), action));
+            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new InventoryContainerPayloads.ContainerActionPayload(owner.getMenu().containerId, window.storage.sourceSlot(), action));
     }
 
     private static void close(Window window) {
@@ -198,7 +198,7 @@ public final class InventoryContainerPanel {
         PENDING.remove(window.index);
         if (dragging == window) dragging = null;
         if (owner != null && Minecraft.getInstance().getConnection() != null)
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, window.index, -1));
+            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, window.index, -1));
         Window top = ORDER.top(InventoryContainerPanel::visible);
         if (top != null) action(top, ContainerActions.FOCUS);
     }
@@ -208,7 +208,7 @@ public final class InventoryContainerPanel {
     public static void reset() {
         for (Window window : ORDER.backToFront()) window.storage.close();
         if (owner != null && Minecraft.getInstance().getConnection() != null)
-            PacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, -1, -1));
+            net.neoforged.neoforge.client.network.ClientPacketDistributor.sendToServer(new InventoryContainerPayloads.SetOpenPayload(owner.getMenu().containerId, -1, -1));
         WINDOWS.clear();
         PENDING.clear();
         ORDER.clear();
@@ -216,15 +216,15 @@ public final class InventoryContainerPanel {
         owner = null;
     }
 
-    public static void drawSourceHighlights(GuiGraphics graphics) {
+    public static void drawSourceHighlights(GuiGraphicsExtractor graphics) {
         for (Window window : ORDER.backToFront()) if (visible(window)) {
             Slot source = window.storage.source();
             ContainerActionIcons.outline(graphics, source.x, source.y, 0xffe8be57);
         }
-        graphics.flush();
+
     }
 
-    public static void draw(GuiGraphics graphics, AbstractContainerScreen<?> screen, int mouseX, int mouseY) {
+    public static void draw(GuiGraphicsExtractor graphics, AbstractContainerScreen<?> screen, int mouseX, int mouseY) {
         if (!visible()) return;
         Slot hovered = slotAt(mouseX, mouseY);
         var windows = ORDER.backToFront();
@@ -232,13 +232,13 @@ public final class InventoryContainerPanel {
         for (Window window : windows) if (visible(window)) drawWindow(graphics, screen, window, hovered, mouseX, mouseY, layer += 20);
         var access = (ContainerScreenAccess) screen;
         if (contains(mouseX, mouseY)) access.lsp$setHoveredSlot(hovered);
-        graphics.flush();
-        graphics.pose().pushPose();
-        graphics.pose().translate(screen.getGuiLeft(), screen.getGuiTop(), layer + 200);
+        Slot tooltipSlot = contains(mouseX, mouseY) ? hovered : screen.getHoveredSlot();
+        graphics.nextStratum();
+
         access.lsp$renderOverlayCarried(graphics, mouseX, mouseY);
-        graphics.pose().popPose();
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, layer + 500);
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(0, 0);
+        graphics.nextStratum();
         drawingTooltip = true;
         try {
             if (screen.getMenu().getCarried().isEmpty()) {
@@ -246,41 +246,42 @@ public final class InventoryContainerPanel {
                 boolean actionTooltip = false;
                 if (window != null && window.state.interactive()) for (int action = 0; action <= 1; action++) {
                     if (window.state.bounds().actionContains(action, mouseX, mouseY)) {
-                        graphics.renderTooltip(Minecraft.getInstance().font, Component.translatable(action == ContainerActions.SORT
+                        net.royling.lsp.lofty_safe_protection.client.gui.GuiTooltips.draw(graphics, Minecraft.getInstance().font, Component.translatable(action == ContainerActions.SORT
                                 ? "gui.lofty_safe_protection.sort" : "gui.lofty_safe_protection.deposit_matching"), mouseX, mouseY);
                         actionTooltip = true;
                     }
                 }
-                if (!actionTooltip) access.lsp$renderOverlayTooltip(graphics, mouseX, mouseY);
+                if (!actionTooltip && tooltipSlot != null && tooltipSlot.hasItem()) GuiTooltips.drawItem(graphics, tooltipSlot.getItem(), mouseX, mouseY);
             }
-        } finally { drawingTooltip = false; graphics.flush(); graphics.pose().popPose(); }
-        RenderSystem.enableDepthTest();
+        } finally { drawingTooltip = false;  graphics.pose().popMatrix(); }
+
     }
 
-    private static void drawWindow(GuiGraphics graphics, AbstractContainerScreen<?> screen, Window window, Slot hovered,
+    private static void drawWindow(GuiGraphicsExtractor graphics, AbstractContainerScreen<?> screen, Window window, Slot hovered,
                                    int mouseX, int mouseY, int layer) {
-        int left = screen.getGuiLeft(), top = screen.getGuiTop();
+        graphics.nextStratum();
+        int left = screen.getLeftPos(), top = screen.getTopPos();
         var font = Minecraft.getInstance().font;
         var container = window.storage;
         var state = window.state;
         var bounds = state.bounds();
         var frame = state.frame();
         float progress = state.progress();
-        graphics.flush();
-        graphics.pose().pushPose();
-        graphics.pose().translate(left, top, layer);
-        RenderSystem.disableDepthTest();
+
+        graphics.pose().pushMatrix();
+        graphics.pose().translate(left, top);
+
         SafeBoxPanel.background(graphics, frame.x() - left, frame.y() - top, frame.width(), frame.height());
         if (progress > 0) {
             graphics.enableScissor(frame.x() + 4, frame.y() + 4, frame.x() + frame.width() - 4, frame.y() + frame.height() - 4);
-            graphics.pose().pushPose();
-            graphics.pose().translate(bounds.x() - left, bounds.y() - top, 0);
-            graphics.pose().scale(progress, progress, 1);
-            graphics.pose().translate(left - bounds.x(), top - bounds.y(), 0);
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(bounds.x() - left, bounds.y() - top);
+            graphics.pose().scale(progress, progress);
+            graphics.pose().translate(left - bounds.x(), top - bounds.y());
             renderingSlots = true;
             try {
                 String title = font.plainSubstrByWidth(container.sourceStack().getHoverName().getString(), bounds.width() - 49);
-                graphics.drawString(font, title, bounds.x() - left + 5, bounds.y() - top + 6, 0x404040, false);
+                graphics.text(font, title, bounds.x() - left + 5, bounds.y() - top + 6, 0xff404040, false);
                 int closeX = bounds.x() + bounds.width() - 14 - left, closeY = bounds.y() + 4 - top;
                 int color = state.interactive() && bounds.closeContains(mouseX, mouseY) && at(mouseX, mouseY) == window ? 0xffaa3030 : 0xff404040;
                 for (int i = 0; i < 6; i++) {
@@ -290,20 +291,20 @@ public final class InventoryContainerPanel {
                 for (int action = 0; action <= 1; action++)
                     ContainerActionIcons.draw(graphics, bounds.actionX(action) - left, bounds.y() + 4 - top, action,
                             state.interactive() && at(mouseX, mouseY) == window && bounds.actionContains(action, mouseX, mouseY));
-                graphics.flush();
+
                 for (int cell = 0; cell < 54; cell++) if (container.activeCell(cell)) {
                     Slot slot = screen.getMenu().slots.get(container.firstSlot() + cell);
-                    RenderSystem.disableDepthTest();
-                    graphics.blit(SLOT, slot.x - 1, slot.y - 1, 0, 0, 18, 18, 18, 18);
-                    ((ContainerScreenAccess) screen).lsp$renderOverlaySlot(graphics, slot);
+
+                    graphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,SLOT, slot.x - 1, slot.y - 1, 0, 0, 18, 18, 18, 18);
+                    ((ContainerScreenAccess) screen).lsp$renderOverlaySlot(graphics, slot, mouseX, mouseY);
                     if (slot == hovered) graphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x80ffffff);
                     if (slot == hovered && !screen.getMenu().getCarried().isEmpty() && !slot.mayPlace(screen.getMenu().getCarried()))
                         ContainerActionIcons.outline(graphics, slot.x, slot.y, 0xffe34c4c);
                 }
-                graphics.flush();
-            } finally { renderingSlots = false; graphics.pose().popPose(); graphics.disableScissor(); }
+
+            } finally { renderingSlots = false; graphics.pose().popMatrix(); graphics.disableScissor(); }
         }
-        graphics.flush();
-        graphics.pose().popPose();
+
+        graphics.pose().popMatrix();
     }
 }

@@ -16,12 +16,12 @@ import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 @JeiPlugin
 public final class SafeBoxJeiPlugin implements IModPlugin, IGuiContainerHandler<InventoryScreen> {
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return SafeBoxManager.id("inventory_sidecar");
     }
 
@@ -30,7 +30,7 @@ public final class SafeBoxJeiPlugin implements IModPlugin, IGuiContainerHandler<
         registration.addGuiContainerHandler(InventoryScreen.class, this);
         registration.addGlobalGuiHandler(new IGlobalGuiHandler() {
             @Override public Collection<Rect2i> getGuiExtraAreas() {
-                var screen = Minecraft.getInstance().screen;
+                var screen = Minecraft.getInstance().gui.screen();
                 if (!InventoryContainerPanel.supports(screen)) return List.of();
                 return InventoryContainerPanel.occupiedAreas((AbstractContainerScreen<?>) screen);
             }
@@ -39,6 +39,6 @@ public final class SafeBoxJeiPlugin implements IModPlugin, IGuiContainerHandler<
 
     @Override
     public List<Rect2i> getGuiExtraAreas(InventoryScreen screen) {
-        return List.of(SafeBoxPanel.occupiedArea(screen.getGuiLeft(), screen.getGuiTop()));
+        return List.of(SafeBoxPanel.occupiedArea(screen.getLeftPos(), screen.getTopPos()));
     }
 }

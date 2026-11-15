@@ -1,1 +1,13 @@
-{"pack":{"pack_format":34,"supported_formats":{"min_inclusive":34,"max_inclusive":48},"description":"Lofty Safe Protection — NeoForge 1.21.1"}}
+{
+  "pack": {
+    "description": "Lofty Safe Protection",
+    "min_format": [
+      97,
+      1
+    ],
+    "max_format": [
+      121,
+      0
+    ]
+  }
+}

@@ -10,13 +10,15 @@ Lofty Safe Protection adds a safe box side panel to the player inventory, alongs
 
 | Component | Current support |
 | --- | --- |
-| Minecraft | 1.21.1 |
-| Mod loader | NeoForge 21.1.265 or newer for Minecraft 1.21.1 |
-| Java | 21 |
+| Minecraft | 26.3 |
+| Mod loader | NeoForge 26.3.0.102 or newer for Minecraft 26.3 |
+| Java | 25 |
 | Mod ID | `lofty_safe_protection` |
-| Optional integrations | JEI, KubeJS 7 |
+| Optional integrations | JEI, KubeJS 8 |
 
 Install the mod on both the client and server for multiplayer. JEI and KubeJS are optional.
+
+Upstream KubeJS 8 currently publishes builds only for Minecraft 26.1.2. This branch preserves the same scripting API; 26.1, 26.1.1, 26.2, and 26.3 require matching upstream builds before installation compatibility can be verified.
 
 ## Safe Boxes
 
@@ -118,7 +120,7 @@ Save this as `data/example/safeboxes/custom_safe.json`. Supply textures and loca
 
 Set `filter.mode` to `whitelist` or `blacklist`. `items` contains item IDs, and `tags` contains item tag IDs without a leading `#`. Portable containers use the same capacity and filter structure, require a `translation_key`, and do not use the safe-box-only `experience` setting.
 
-## KubeJS 7 Integration
+## KubeJS 8 Integration
 
 Place scripts in `kubejs/server_scripts/` and use `SafeEvents.definitions` to add, replace, or remove definitions. The event runs after data pack definitions load, allowing scripts to remove safe boxes or portable containers supplied by other data packs. Use `/reload` after changing scripts.
 
@@ -172,7 +174,7 @@ With the SICC example loaded:
 
 ## Development and Building
 
-With Java 21, run the following from the project root on Windows:
+With Java 25, run the following from the project root on Windows:
 
 ```powershell
 .\gradlew.bat build
@@ -184,7 +186,9 @@ Build outputs are written to `build/libs/`. Start the development client with:
 .\gradlew.bat runClient
 ```
 
-The development runtime loads JEI, KubeJS, and Rhino through Maven, and copies the repository's KubeJS example into the development client directory.
+The development runtime loads JEI through Maven. KubeJS and Rhino are compile-only dependencies until matching upstream builds are available. The KubeJS example is copied to the development client directory.
+
+Run `./gradlew build` for regression tests, or `./gradlew verifyServerStartup -PstartupCheck` to verify data packs and optional script integrations in an isolated server. Test worlds and reports stay under `build/`.
 
 ## License
 

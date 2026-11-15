@@ -17,6 +17,7 @@ class InventoryContainerBindingTest {
     static void bootstrap() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize();
     }
 
     @Test
@@ -26,8 +27,8 @@ class InventoryContainerBindingTest {
         int before = parent.changes;
         var binding = new InventoryContainerBinding(new Slot(parent, 0, 0, 0));
         assertTrue(binding.write(List.of(new ItemStack(Items.MAP, 3)), 4, 4));
-        assertEquals(3, parent.getItem(0).get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
-        assertEquals(4, parent.getItem(0).get(DataComponents.CUSTOM_DATA).copyTag().getInt("ContainerColumns"));
+        assertEquals(3, parent.getItem(0).get(DataComponents.CONTAINER).getTemplateInSlot(0).orElseThrow().create().getCount());
+        assertEquals(4, parent.getItem(0).get(DataComponents.CUSTOM_DATA).copyTag().getIntOr("ContainerColumns", 0));
         assertTrue(parent.changes > before);
         assertTrue(binding.matches());
     }
@@ -42,7 +43,7 @@ class InventoryContainerBindingTest {
         assertTrue(first.write(List.of(new ItemStack(Items.MAP, 5)), 4, 4));
         assertFalse(second.matches());
         assertFalse(second.write(List.of(), 4, 4));
-        assertEquals(5, parent.getItem(0).get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
+        assertEquals(5, parent.getItem(0).get(DataComponents.CONTAINER).getTemplateInSlot(0).orElseThrow().create().getCount());
     }
 
     @Test
@@ -56,7 +57,7 @@ class InventoryContainerBindingTest {
         parent.setItem(0, new ItemStack(Items.STONE));
         assertFalse(binding.write(List.of(), 4, 4));
         assertTrue(parent.getItem(0).is(Items.STONE));
-        assertEquals(2, moved.get(DataComponents.CONTAINER).getStackInSlot(0).getCount());
+        assertEquals(2, moved.get(DataComponents.CONTAINER).getTemplateInSlot(0).orElseThrow().create().getCount());
     }
 
     private static final class CopyingContainer extends SimpleContainer {

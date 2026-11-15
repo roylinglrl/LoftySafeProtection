@@ -6,7 +6,7 @@ import net.minecraft.server.Bootstrap;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -15,7 +15,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InventoryContainerWindowsTest {
-    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap(); }
+    @BeforeAll static void bootstrap() { SharedConstants.tryDetectVersion(); Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize(); }
 
     @Test
     void windowsOwnSeparateSlotsAndClosingOneKeepsTheOtherOpen() {
@@ -36,8 +37,8 @@ class InventoryContainerWindowsTest {
         assertEquals(5, second.getItem(0).getCount());
         assertTrue(access.lsp$isInventoryContainerSource(0));
         assertTrue(access.lsp$isInventoryContainerSource(1));
-        menu.clicked(0, 0, ClickType.PICKUP, null);
-        menu.clicked(1, 0, ClickType.PICKUP, null);
+        menu.clicked(0, 0, ContainerInput.PICKUP, null);
+        menu.clicked(1, 0, ContainerInput.PICKUP, null);
         assertTrue(menu.getCarried().isEmpty());
         first.close();
         assertTrue(second.isOpen());

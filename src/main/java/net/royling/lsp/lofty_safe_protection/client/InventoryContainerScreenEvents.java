@@ -18,11 +18,11 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
-import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+
 import net.royling.lsp.lofty_safe_protection.client.gui.InventoryContainerPanel;
 import net.royling.lsp.lofty_safe_protection.menu.InventoryItemContainer;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 @EventBusSubscriber(modid = SafeBoxManager.MOD, value = Dist.CLIENT)
 public final class InventoryContainerScreenEvents {
@@ -32,7 +32,7 @@ public final class InventoryContainerScreenEvents {
 
     @SubscribeEvent
     public static void preview(RenderTooltipEvent.GatherComponents event) {
-        if (!Screen.hasShiftDown()) return;
+        if (!(com.mojang.blaze3d.platform.InputConstants.isKeyDown(InputConstants.KEY_LSHIFT) || com.mojang.blaze3d.platform.InputConstants.isKeyDown(InputConstants.KEY_RSHIFT))) return;
         var summary = ContainerContentsSummary.fromItem(event.getItemStack());
         if (summary == null) {
             var box = SafeBoxPanel.storage();
@@ -57,14 +57,20 @@ public final class InventoryContainerScreenEvents {
     }
 
     @SubscribeEvent
-    public static void sourceHighlights(ContainerScreenEvent.Render.Foreground event) {
-        if (InventoryContainerPanel.supports(event.getContainerScreen())) InventoryContainerPanel.drawSourceHighlights(event.getGuiGraphics());
+    public static void sourceHighlights(ScreenEvent.Render.Foreground event) {
+        if (event.getScreen() instanceof AbstractContainerScreen<?> screen && InventoryContainerPanel.supports(screen)) {
+            var graphics = event.getGuiGraphics();
+            graphics.pose().pushMatrix();
+            graphics.pose().translate(screen.getLeftPos(), screen.getTopPos());
+            InventoryContainerPanel.drawSourceHighlights(graphics);
+            graphics.pose().popMatrix();
+        }
     }
 
     @SubscribeEvent
     public static void tooltip(RenderTooltipEvent.Pre event) {
-        var screen = Minecraft.getInstance().screen;
-        Slot slot = screen instanceof AbstractContainerScreen<?> container ? container.getSlotUnderMouse() : null;
+        var screen = Minecraft.getInstance().gui.screen();
+        Slot slot = screen instanceof AbstractContainerScreen<?> container ? container.getHoveredSlot() : null;
         boolean nativeSlotTooltip = slot != null && slot.hasItem() && !event.getItemStack().isEmpty()
                 && net.minecraft.world.item.ItemStack.isSameItemSameComponents(slot.getItem(), event.getItemStack());
         if (!InventoryContainerPanel.drawingTooltip() && InventoryContainerPanel.visible()
@@ -95,11 +101,11 @@ public final class InventoryContainerScreenEvents {
             return;
         }
         if (button != 1 || !screen.getMenu().getCarried().isEmpty()) return;
-        if (screen.width < 379 && screen instanceof RecipeUpdateListener recipe && recipe.getRecipeBookComponent().isVisible()) return;
+        if (screen.width < 379 && screen instanceof RecipeUpdateListener recipe && screen.children().stream().anyMatch(child -> child instanceof net.minecraft.client.gui.screens.recipebook.RecipeBookComponent<?> book && book.isVisible())) return;
         int count = InventoryContainerPanel.hostSlotCount();
         for (int index = 0; index < count; index++) {
             Slot slot = screen.getMenu().slots.get(index);
-            int slotX = screen.getGuiLeft() + slot.x, slotY = screen.getGuiTop() + slot.y;
+            int slotX = screen.getLeftPos() + slot.x, slotY = screen.getTopPos() + slot.y;
             if (x >= slotX - 1 && x < slotX + 17 && y >= slotY - 1 && y < slotY + 17
                     && InventoryItemContainer.canOpen(slot, Minecraft.getInstance().player)) {
                 InventoryContainerPanel.requestOpen(index);
@@ -114,7 +120,7 @@ public final class InventoryContainerScreenEvents {
         var saved = new ArrayList<>(children);
         children.clear();
         try {
-            screen.mouseClicked(x, y, button);
+            screen.mouseClicked(new net.minecraft.client.input.MouseButtonEvent(x, y, new net.minecraft.client.input.MouseButtonInfo(button, 0)), false);
         } finally {
             children.addAll(saved);
         }
@@ -139,7 +145,7 @@ public final class InventoryContainerScreenEvents {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void key(ScreenEvent.KeyPressed.Pre event) {
         if (InventoryContainerPanel.supports(event.getScreen()) && InventoryContainerPanel.visible()
-                && event.getKeyCode() == GLFW.GLFW_KEY_ESCAPE) {
+                && event.getKey() == InputConstants.KEY_ESCAPE) {
             InventoryContainerPanel.close();
             event.setCanceled(true);
         }
