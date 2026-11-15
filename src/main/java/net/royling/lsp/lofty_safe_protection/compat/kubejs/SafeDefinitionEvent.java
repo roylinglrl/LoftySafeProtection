@@ -5,16 +5,16 @@ import dev.latvian.mods.kubejs.event.KubeEvent;
 import dev.latvian.mods.kubejs.util.JsonUtils;
 import dev.latvian.mods.rhino.Context;
 import java.util.Map;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerDefinition;
 import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 
 public final class SafeDefinitionEvent implements KubeEvent {
-    private final Map<ResourceLocation, SafeBoxManager.Definition> boxes;
-    private final Map<ResourceLocation, InventoryContainerDefinition> containers;
+    private final Map<Identifier, SafeBoxManager.Definition> boxes;
+    private final Map<Identifier, InventoryContainerDefinition> containers;
 
-    public SafeDefinitionEvent(Map<ResourceLocation, SafeBoxManager.Definition> boxes,
-                               Map<ResourceLocation, InventoryContainerDefinition> containers) {
+    public SafeDefinitionEvent(Map<Identifier, SafeBoxManager.Definition> boxes,
+                               Map<Identifier, InventoryContainerDefinition> containers) {
         this.boxes = boxes;
         this.containers = containers;
     }
@@ -24,26 +24,26 @@ public final class SafeDefinitionEvent implements KubeEvent {
     }
 
     public void addSafeBox(Context cx, String id, String texture, int columns, int rows, Object options) {
-        var key = ResourceLocation.parse(id);
+        var key = Identifier.parse(id);
         JsonObject json = definition(key, texture, columns, rows, JsonUtils.objectOf(cx, options));
         boxes.put(key, SafeBoxManager.parse(key, json));
     }
 
-    public void removeSafeBox(String id) { boxes.remove(ResourceLocation.parse(id)); }
+    public void removeSafeBox(String id) { boxes.remove(Identifier.parse(id)); }
 
     public void addCustomContainer(Context cx, String id, String texture, int columns, int rows) {
         addCustomContainer(cx, id, texture, columns, rows, new JsonObject());
     }
 
     public void addCustomContainer(Context cx, String id, String texture, int columns, int rows, Object options) {
-        var key = ResourceLocation.parse(id);
+        var key = Identifier.parse(id);
         JsonObject json = definition(key, texture, columns, rows, JsonUtils.objectOf(cx, options));
         containers.put(key, InventoryContainerDefinition.parse(key, json));
     }
 
-    public void removeCustomContainer(String id) { containers.remove(ResourceLocation.parse(id)); }
+    public void removeCustomContainer(String id) { containers.remove(Identifier.parse(id)); }
 
-    private static JsonObject definition(ResourceLocation id, String texture, int columns, int rows, JsonObject options) {
+    private static JsonObject definition(Identifier id, String texture, int columns, int rows, JsonObject options) {
         if (options == null) options = new JsonObject();
         JsonObject json = new JsonObject();
         json.addProperty("id", id.toString());

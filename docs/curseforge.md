@@ -42,12 +42,12 @@ Lofty Safe Protection 为玩家物品栏带来安全箱侧栏和可右键打开�
 
 使用 JSON 数据包定义安全箱和背包内容器，自由配置 ID、贴图、本地化键、矩形容量，以及基于物品 ID 或物品标签的白名单、黑名单。安全箱是否支持经验储存、经验上限也可单独设置。
 
-可选安装 **KubeJS 7**，通过 `SafeEvents.definitions` 添加、覆盖或移除定义，包括移除其他数据包提供的安全箱与容器。
+可选安装 **KubeJS 8**，通过 `SafeEvents.definitions` 添加、覆盖或移除定义，包括移除其他数据包提供的安全箱与容器。
 
 **可以前往 GitHub 查看示例的定义写法：**
 
-- [安全箱 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
-- [地图包 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
+- [安全箱 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.2/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
+- [地图包 JSON 定义示例](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.2/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
 - [5×5 SICC 收纳包 KubeJS 示例](https://github.com/roylinglrl/LoftySafeProtection/tree/main/examples/kubejs)
 - [完整配置与使用说明](https://github.com/roylinglrl/LoftySafeProtection#readme)
 
@@ -55,8 +55,11 @@ SICC 收纳包是仓库中的可选脚本示例，展示如何为金属粒、染
 
 ## 运行环境
 
-**Minecraft 1.21.1 · NeoForge 21.1.265 及以上的 1.21.1 版本 · Java 21**
+**Minecraft 26.2 · NeoForge 26.2.0.93 及以上的 26.2 版本 · Java 25**
 
 多人游戏需要客户端与服务端均安装本模组。JEI 和 KubeJS 为可选组件。
 
 [GitHub 源码与说明](https://github.com/roylinglrl/LoftySafeProtection) · [问题反馈](https://github.com/roylinglrl/LoftySafeProtection/issues)
+
+
+KubeJS 8 上游当前仅发布 Minecraft 26.1.2 版本。本分支保留相同脚本接口；26.1、26.1.1、26.2、26.3 需要等待对应的上游构建，暂不能承诺安装兼容。

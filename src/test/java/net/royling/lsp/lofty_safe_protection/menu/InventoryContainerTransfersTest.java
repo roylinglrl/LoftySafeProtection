@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import net.minecraft.SharedConstants;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.Bootstrap;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -23,6 +23,7 @@ class InventoryContainerTransfersTest {
     static void bootstrap() {
         SharedConstants.tryDetectVersion();
         Bootstrap.bootStrap();
+        net.royling.lsp.lofty_safe_protection.TestRegistries.initialize();
     }
 
     @Test
@@ -74,10 +75,10 @@ class InventoryContainerTransfersTest {
         var oldItem = InventoryContainerManager.ITEM;
         var oldDefinitions = InventoryContainerManager.definitions;
         try {
-            var id = ResourceLocation.parse("example:maps");
+            var id = Identifier.parse("example:maps");
             InventoryContainerManager.ITEM = Items.BUNDLE;
             InventoryContainerManager.definitions = Map.of(id, new InventoryContainerDefinition(
-                    id, "item.example.maps", id, 1, 1, true, Set.of(ResourceLocation.parse("minecraft:map")), Set.of()));
+                    id, "item.example.maps", id, 1, 1, true, Set.of(Identifier.parse("minecraft:map")), Set.of()));
             var parent = new SimpleContainer(2) {
                 @Override public ItemStack getItem(int slot) { return super.getItem(slot).copy(); }
             };

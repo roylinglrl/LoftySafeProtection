@@ -13,9 +13,9 @@ import net.royling.lsp.lofty_safe_protection.menu.InventoryContainerMenuAccess;
 
 
 import net.minecraft.commands.Commands;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import net.neoforged.neoforge.event.OnDatapackSyncEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerContainerEvent;
@@ -41,10 +41,12 @@ public final class SafeBoxEvents {
         if (event.getContainer() != inventory && inventory instanceof InventoryContainerMenuAccess access) access.lsp$closeInventoryContainers();
     }
 
-    private static void onReload(AddReloadListenerEvent event) {
-        event.addListener(new SafeBoxDefinitionReloadListener());
-        event.addListener(new InventoryContainerReloadListener());
-        event.addListener(new DefinitionScriptReloadListener());
+    private static void onReload(AddServerReloadListenersEvent event) {
+        event.addListener(SafeBoxManager.id("safeboxes"), new SafeBoxDefinitionReloadListener());
+        event.addListener(SafeBoxManager.id("inventory_containers"), new InventoryContainerReloadListener());
+        event.addListener(SafeBoxManager.id("script_definitions"), new DefinitionScriptReloadListener());
+        event.addDependency(SafeBoxManager.id("safeboxes"), SafeBoxManager.id("script_definitions"));
+        event.addDependency(SafeBoxManager.id("inventory_containers"), SafeBoxManager.id("script_definitions"));
     }
 
     private static void onDatapackSync(OnDatapackSyncEvent event) {
@@ -58,25 +60,25 @@ public final class SafeBoxEvents {
 
     private static void onRegisterCommands(RegisterCommandsEvent event) {
         var command = event.getDispatcher().register(Commands.literal(SafeBoxManager.MOD)
-                .requires(source -> source.hasPermission(2))
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS))
                 .then(Commands.literal("give")
-                        .then(Commands.argument("id", ResourceLocationArgument.id())
+                        .then(Commands.argument("id", IdentifierArgument.id())
                                 .suggests((context, builder) -> {
                                     SafeBoxManager.definitions.keySet().forEach(id -> builder.suggest(id.toString()));
                                     InventoryContainerManager.definitions.keySet().forEach(id -> builder.suggest(id.toString()));
                                     return builder.buildFuture();
                                 })
                                 .executes(context -> {
-                                    var id = ResourceLocationArgument.getId(context, "id");
+                                    var id = IdentifierArgument.getId(context, "id");
                                     boolean container = InventoryContainerManager.definitions.containsKey(id);
                                     if (!container && !SafeBoxManager.definitions.containsKey(id)) id = LegacySafeBoxIds.definitionId(id);
                                     if (!container && !SafeBoxManager.definitions.containsKey(id)) return 0;
                                     var player = context.getSource().getPlayerOrException();
                                     var stack = container ? InventoryContainerManager.stack(id) : SafeBoxManager.stack(id);
-                                    if (!player.getInventory().add(stack)) player.drop(stack, false);
+                                    if (!player.getInventory().add(stack)) player.drop(stack, false, false);
                                     return 1;
                                 }))));
         event.getDispatcher().register(Commands.literal("safebox")
-                .requires(source -> source.hasPermission(2)).redirect(command));
+                .requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS)).redirect(command));
     }
 }

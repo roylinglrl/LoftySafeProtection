@@ -2,7 +2,7 @@ package net.royling.lsp.lofty_safe_protection.mixin;
 
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -80,7 +80,7 @@ public abstract class ContainerMenuMixin implements InventoryContainerMenuAccess
     }
 
     @Inject(method = "clicked", at = @At("HEAD"), cancellable = true)
-    private void lsp$click(int slotId, int button, ClickType type, Player player, CallbackInfo callback) {
+    private void lsp$click(int slotId, int button, ContainerInput type, Player player, CallbackInfo callback) {
         InventoryItemContainer clicked = null;
         for (var storage : lsp$inventoryContainers) {
             storage.validateBinding();
@@ -90,14 +90,14 @@ public abstract class ContainerMenuMixin implements InventoryContainerMenuAccess
             }
             if (!storage.isOpen()) continue;
             Slot source = storage.source();
-            if (storage.isSource(slotId) || type == ClickType.SWAP
+            if (storage.isSource(slotId) || type == ContainerInput.SWAP
                     && source.container == player.getInventory() && source.getContainerSlot() == button) {
                 callback.cancel();
                 return;
             }
         }
         var target = clicked == null ? lsp$focusedInventoryContainer() : clicked;
-        if (target != null && type == ClickType.QUICK_MOVE && InventoryContainerTransfers.quickMove(
+        if (target != null && type == ContainerInput.QUICK_MOVE && InventoryContainerTransfers.quickMove(
                 (AbstractContainerMenu) (Object) this, target, player, slotId)) callback.cancel();
     }
 }
