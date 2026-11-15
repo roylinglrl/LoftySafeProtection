@@ -30,7 +30,7 @@ Add `fluids` to `data/<namespace>/inventory_containers/<name>.json`:
 
 Fluid-only containers may omit item `capacity` or use `{"columns":0,"rows":0}`. To store both items and fluids, add a normal item grid, such as `"capacity":{"columns":4,"rows":3}`. Item filters apply to item slots.
 
-Each tank uses a fixed 16×64 background at `lofty_safe_protection:textures/gui/fluid_slot.png`. Changing the item grid does not stretch tanks; the panel widens to fit them. Tanks appear below item slots, or by themselves for fluid-only containers.
+Each tank is a fixed horizontal 64×16 bar. Multiple tanks stack vertically and wrap into columns when screen height is insufficient, with left-to-right fluid filling and the supplied red scale markings. The background is at `lofty_safe_protection:textures/gui/fluid_slot.png`. Changing the item grid does not stretch tanks; the panel widens to fit them. Tanks appear below item slots, or by themselves for fluid-only containers.
 
 ## Transfers
 

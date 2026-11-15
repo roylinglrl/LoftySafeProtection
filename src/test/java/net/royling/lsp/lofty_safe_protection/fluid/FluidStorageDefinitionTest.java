@@ -36,11 +36,24 @@ class FluidStorageDefinitionTest {
         for (int columns = 0; columns <= 9; columns++) for (int rows = 0; rows <= 6; rows++) for (int slots = 1; slots <= 9; slots++) {
             var bounds = InventoryContainerPanelLayout.place(10, 10, columns, rows, slots, 500, 500);
             int last = slots - 1;
-            assertTrue(bounds.fluidX(last) + 16 <= bounds.x() + bounds.width() - 4);
-            assertTrue(bounds.fluidY(rows) + 64 <= bounds.y() + bounds.height() - 4);
-            assertTrue(bounds.fluidContains(last, rows, bounds.fluidX(last) + 15, bounds.fluidY(rows) + 63));
-            assertFalse(bounds.fluidContains(last, rows, bounds.fluidX(last) + 16, bounds.fluidY(rows) + 64));
+            assertTrue(bounds.fluidX(last) + 64 <= bounds.x() + bounds.width() - 4);
+            assertTrue(bounds.fluidY(rows, last) + 16 <= bounds.y() + bounds.height() - 4);
+            assertTrue(bounds.fluidContains(last, rows, bounds.fluidX(last) + 63, bounds.fluidY(rows, last) + 15));
+            assertFalse(bounds.fluidContains(last, rows, bounds.fluidX(last) + 64, bounds.fluidY(rows, last) + 16));
+            if (slots > 1) {
+                assertEquals(bounds.fluidX(0), bounds.fluidX(last));
+                assertEquals(last * 20, bounds.fluidY(rows, last) - bounds.fluidY(rows, 0));
+                assertFalse(bounds.fluidContains(0, rows, bounds.fluidX(last), bounds.fluidY(rows, last)));
+            }
         }
-        assertTrue(InventoryContainerPanelLayout.place(0, 0, 1, 1, 9, 500, 500).width() >= 186);
+        assertTrue(InventoryContainerPanelLayout.place(0, 0, 1, 1, 9, 500, 500).width() >= 74);
+        var crowded = InventoryContainerPanelLayout.place(0, 0, 9, 6, 9, 320, 240);
+        assertTrue(crowded.width() <= 320);
+        assertTrue(crowded.height() <= 240);
+        assertEquals(2, crowded.fluidColumns());
+        for (int tank = 0; tank < 9; tank++) {
+            assertTrue(crowded.fluidContains(tank, 6, crowded.fluidX(tank) + 63, crowded.fluidY(6, tank) + 15));
+            assertTrue(crowded.fluidY(6, tank) + 16 <= crowded.y() + crowded.height() - 4);
+        }
     }
 }

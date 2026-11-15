@@ -325,7 +325,7 @@ public final class InventoryContainerPanel {
                         ContainerActionIcons.outline(graphics, slot.x, slot.y, 0xffe34c4c);
                 }
                 for (int tank = 0; tank < container.fluids().slots(); tank++) {
-                    FluidSlotRenderer.draw(graphics, bounds.fluidX(tank) - left, bounds.fluidY(container.rows()) - top,
+                    FluidSlotRenderer.draw(graphics, bounds.fluidX(tank) - left, bounds.fluidY(container.rows(), tank) - top,
                             container.fluidContents().fluid(tank), container.fluids().capacity());
                 }
                 graphics.flush();

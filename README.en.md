@@ -70,7 +70,7 @@ The mod includes a **4×4 Map Pouch** for empty and filled maps. This repository
 
 ## Fluid Storage
 
-Portable containers can provide fluid tanks alongside item storage or as fluid-only containers. The included Fluid Container has two tanks holding four buckets each. Tank backgrounds stay 16×64 pixels, and panels widen to fit them. Left-click to deposit from the cursor item and right-click to withdraw. Water, lava, milk, and compatible NeoForge fluid items are supported. See [fluid configuration and KubeJS examples](docs/fluid-storage.en.md).
+Portable containers can provide fluid tanks alongside item storage or as fluid-only containers. The included Fluid Container has two tanks holding four buckets each. Tank backgrounds stay 64×16 pixels, and panels widen to fit them. Left-click to deposit from the cursor item and right-click to withdraw. Water, lava, milk, and compatible NeoForge fluid items are supported. See [fluid configuration and KubeJS examples](docs/fluid-storage.en.md).
 
 ## Inventory Convenience
 

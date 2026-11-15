@@ -17,16 +17,16 @@ public final class FluidSlotRenderer {
     private FluidSlotRenderer() {}
 
     public static void draw(GuiGraphics graphics, int x, int y, FluidStack fluid, int capacity) {
-        graphics.fill(x + 1, y + 1, x + 15, y + 63, 0xff20252a);
+        graphics.blit(FRAME, x, y, 0, 0, 64, 16, 64, 16);
         if (!fluid.isEmpty() && capacity > 0) {
             var extension = IClientFluidTypeExtensions.of(fluid.getFluid());
             var texture = extension.getStillTexture(fluid);
             if (texture != null) {
                 var sprite = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(texture);
-                int height = Math.max(1, (int) (62L * Math.min(fluid.getAmount(), capacity) / capacity));
+                int width = Math.max(1, (int) (60L * Math.min(fluid.getAmount(), capacity) / capacity));
                 var matrix = graphics.pose().last().pose();
-                var first = matrix.transformPosition(x + 1, y + 63 - height, 0, new Vector3f());
-                var second = matrix.transformPosition(x + 15, y + 63, 0, new Vector3f());
+                var first = matrix.transformPosition(x + 2, y + 2, 0, new Vector3f());
+                var second = matrix.transformPosition(x + 2 + width, y + 14, 0, new Vector3f());
                 int tint = extension.getTintColor(fluid);
                 graphics.flush();
                 RenderSystem.enableBlend();
@@ -34,14 +34,17 @@ public final class FluidSlotRenderer {
                 RenderSystem.setShaderColor((tint >> 16 & 255) / 255f, (tint >> 8 & 255) / 255f, (tint & 255) / 255f, (tint >>> 24) / 255f);
                 graphics.enableScissor((int) Math.floor(first.x), (int) Math.floor(first.y), (int) Math.ceil(second.x), (int) Math.ceil(second.y));
                 try {
-                    for (int offset = 0; offset < height; offset += 16) graphics.blit(x + 1, y + 63 - offset - 16, 0, 16, 16, sprite);
+                    for (int offset = 0; offset < width; offset += 16) graphics.blit(x + 2 + offset, y + 2, 0, 16, 16, sprite);
                 } finally {
                     graphics.disableScissor();
                     RenderSystem.setShaderColor(1, 1, 1, 1);
                 }
             }
         }
-        graphics.blit(FRAME, x, y, 0, 0, 16, 64, 16, 64);
+        for (int mark = 2; mark <= 60; mark += 2) {
+            int height = mark % 10 == 6 ? 4 : 2;
+            graphics.blit(FRAME, x + mark, y + 14 - height, mark, 14 - height, 1, height, 64, 16);
+        }
     }
 
     public static List<Component> tooltip(FluidStack fluid, int capacity) {

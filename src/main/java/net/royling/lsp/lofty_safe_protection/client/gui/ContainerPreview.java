@@ -11,8 +11,8 @@ import net.royling.lsp.lofty_safe_protection.item.ContainerContentsSummary;
 public record ContainerPreview(ContainerContentsSummary contents) implements TooltipComponent, ClientTooltipComponent {
     private static final ResourceLocation SLOT = SafeBoxManager.id("textures/gui/slot.png");
 
-    @Override public int getHeight() { return (contents.rows() * 18 + (contents.fluids().enabled() ? 64 + (contents.rows() > 0 ? 4 : 0) : 0)) / 2 + 6; }
-    @Override public int getWidth(Font font) { return Math.max(contents.columns() * 18, contents.fluids().slots() * 20) / 2 + 4; }
+    @Override public int getHeight() { return (contents.rows() * 18 + (contents.fluids().enabled() ? contents.fluids().slots() * 20 - 4 + (contents.rows() > 0 ? 4 : 0) : 0)) / 2 + 6; }
+    @Override public int getWidth(Font font) { return Math.max(contents.columns() * 18, contents.fluids().enabled() ? 64 : 0) / 2 + 4; }
 
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics graphics) {
@@ -30,7 +30,7 @@ public record ContainerPreview(ContainerContentsSummary contents) implements Too
             }
         }
         for (int tank = 0; tank < contents.fluids().slots(); tank++) {
-            FluidSlotRenderer.draw(graphics, 4 + tank * 20, 4 + (contents.rows() > 0 ? contents.rows() * 18 + 4 : 0),
+            FluidSlotRenderer.draw(graphics, (getWidth(font) * 2 - 64) / 2, 4 + (contents.rows() > 0 ? contents.rows() * 18 + 4 : 0) + tank * 20,
                     contents.fluidContents().fluid(tank), contents.fluids().capacity());
         }
         graphics.pose().popPose();

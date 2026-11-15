@@ -62,4 +62,4 @@ Install the mod on both the client and server for multiplayer. JEI and KubeJS ar
 [Source and documentation](https://github.com/roylinglrl/LoftySafeProtection) · [Report an issue](https://github.com/roylinglrl/LoftySafeProtection/issues)
 
 
-Portable containers also support configurable fluid tanks. The included Fluid Container holds two fluids, up to four buckets each. Tank backgrounds stay 16×64 pixels. Left-click to deposit and right-click to withdraw using buckets or compatible fluid items. See the [fluid storage guide](https://github.com/roylinglrl/LoftySafeProtection/blob/main/docs/fluid-storage.en.md).
+Portable containers also support configurable fluid tanks. The included Fluid Container holds two fluids, up to four buckets each. Tank backgrounds stay 64×16 pixels. Left-click to deposit and right-click to withdraw using buckets or compatible fluid items. See the [fluid storage guide](https://github.com/roylinglrl/LoftySafeProtection/blob/main/docs/fluid-storage.en.md).
