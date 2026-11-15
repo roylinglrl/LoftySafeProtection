@@ -31,6 +31,16 @@ public final class InventoryContainerNetworking {
     }
 
     public static void register(PayloadRegistrar registrar) {
+        registrar.playToServer(InventoryContainerPayloads.FluidTransferPayload.TYPE, InventoryContainerPayloads.FluidTransferPayload.CODEC,
+                (payload, context) -> context.enqueueWork(() -> {
+                    if (!(context.player() instanceof ServerPlayer player) || !player.isAlive() || player.isSpectator()) return;
+                    var menu = player.containerMenu;
+                    if (menu.containerId != payload.menuId() || !menu.stillValid(player)
+                            || !(menu instanceof InventoryContainerMenuAccess access)) return;
+                    var storage = access.lsp$inventoryContainers().stream().filter(window -> window.isSource(payload.sourceSlot())).findFirst().orElse(null);
+                    if (storage == null) return;
+                    net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidTransfers.transfer(player, storage, payload.tank(), payload.deposit());
+                }));
         registrar.playToServer(InventoryContainerPayloads.ContainerActionPayload.TYPE, InventoryContainerPayloads.ContainerActionPayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {
                     if (!(context.player() instanceof ServerPlayer player) || !player.isAlive() || player.isSpectator()) return;

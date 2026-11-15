@@ -17,5 +17,9 @@
   "tooltip.lofty_safe_protection.incompatible": "This item is incompatible with the safe box",
   "tooltip.lofty_safe_protection.usage": "Used: %s/%s",
   "gui.lofty_safe_protection.sort": "Sort",
-  "gui.lofty_safe_protection.deposit_matching": "Deposit matching items"
+  "gui.lofty_safe_protection.deposit_matching": "Deposit matching items",
+  "item.lofty_safe_protection.fluid_container": "Fluid Container",
+  "tooltip.lofty_safe_protection.fluid_capacity": "Fluid capacity: %s tanks × %s mB",
+  "tooltip.lofty_safe_protection.fluid_empty": "Empty",
+  "tooltip.lofty_safe_protection.fluid_amount": "%s / %s mB"
 }

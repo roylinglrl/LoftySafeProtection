@@ -54,7 +54,7 @@ public final class InventoryContainerPanel {
 
     private static boolean visible(Window window) {
         return owner != null && Minecraft.getInstance().screen == owner && window.storage.isOpen()
-                && window.state.bounds() != null && window.storage.columns() > 0 && window.storage.rows() > 0;
+                && window.state.bounds() != null && (window.storage.columns() > 0 && window.storage.rows() > 0 || window.storage.fluids().enabled());
     }
 
     public static boolean visible() { return ORDER.top(InventoryContainerPanel::visible) != null; }
@@ -77,14 +77,14 @@ public final class InventoryContainerPanel {
                 ORDER.raise(window);
             }
             var storage = window.storage;
-            if (!storage.isOpen() || storage.columns() < 1 || storage.rows() < 1) {
+            if (!storage.isOpen() || ((storage.columns() < 1 || storage.rows() < 1) && !storage.fluids().enabled())) {
                 window.state.reset();
                 if (dragging == window) dragging = null;
                 continue;
             }
             Slot source = storage.source();
             window.state.update(storage.sourceSlot(), screen.getGuiLeft() + source.x, screen.getGuiTop() + source.y,
-                    storage.columns(), storage.rows(), screen.width, screen.height, System.nanoTime());
+                    storage.columns(), storage.rows(), storage.fluids().slots(), screen.width, screen.height, System.nanoTime());
             var bounds = window.state.bounds();
             for (int cell = 0; cell < 54; cell++) {
                 Slot slot = screen.getMenu().slots.get(storage.firstSlot() + cell);
@@ -136,8 +136,8 @@ public final class InventoryContainerPanel {
         if (!bounds.titleContains(x, y)) return false;
         if (button == 0) {
             if (bounds.closeContains(x, y)) close(window);
-            else if (bounds.actionContains(ContainerActions.SORT, x, y)) action(window, ContainerActions.SORT);
-            else if (bounds.actionContains(ContainerActions.DEPOSIT_MATCHING, x, y)) action(window, ContainerActions.DEPOSIT_MATCHING);
+            else if (window.storage.columns() > 0 && bounds.actionContains(ContainerActions.SORT, x, y)) action(window, ContainerActions.SORT);
+            else if (window.storage.columns() > 0 && bounds.actionContains(ContainerActions.DEPOSIT_MATCHING, x, y)) action(window, ContainerActions.DEPOSIT_MATCHING);
             else {
                 dragging = window;
                 dragOffsetX = x - bounds.x();
@@ -152,6 +152,20 @@ public final class InventoryContainerPanel {
         dragging.state.move((int) Math.round(x - dragOffsetX), (int) Math.round(y - dragOffsetY), owner.width, owner.height);
         position(owner);
         return true;
+    }
+
+    public static boolean pressFluid(double x, double y, int button) {
+        Window window = at(x, y);
+        if (window == null || !window.state.interactive()) return false;
+        for (int tank = 0; tank < window.storage.fluids().slots(); tank++) {
+            if (!window.state.bounds().fluidContains(tank, window.storage.rows(), x, y)) continue;
+            focus(window);
+            if ((button == 0 || button == 1) && !owner.getMenu().getCarried().isEmpty())
+                PacketDistributor.sendToServer(new InventoryContainerPayloads.FluidTransferPayload(owner.getMenu().containerId,
+                        window.storage.sourceSlot(), tank, button == 0));
+            return true;
+        }
+        return false;
     }
 
     public static boolean release() {
@@ -241,10 +255,20 @@ public final class InventoryContainerPanel {
         graphics.pose().translate(0, 0, layer + 500);
         drawingTooltip = true;
         try {
-            if (screen.getMenu().getCarried().isEmpty()) {
-                Window window = at(mouseX, mouseY);
+            Window window = at(mouseX, mouseY);
+            boolean fluidTooltip = false;
+            if (window != null && window.state.interactive()) {
+                for (int tank = 0; tank < window.storage.fluids().slots(); tank++) {
+                    if (!window.state.bounds().fluidContains(tank, window.storage.rows(), mouseX, mouseY)) continue;
+                    graphics.renderComponentTooltip(Minecraft.getInstance().font,
+                            FluidSlotRenderer.tooltip(window.storage.fluidContents().fluid(tank), window.storage.fluids().capacity()), mouseX, mouseY);
+                    fluidTooltip = true;
+                    break;
+                }
+            }
+            if (!fluidTooltip && screen.getMenu().getCarried().isEmpty()) {
                 boolean actionTooltip = false;
-                if (window != null && window.state.interactive()) for (int action = 0; action <= 1; action++) {
+                if (window != null && window.storage.columns() > 0 && window.state.interactive()) for (int action = 0; action <= 1; action++) {
                     if (window.state.bounds().actionContains(action, mouseX, mouseY)) {
                         graphics.renderTooltip(Minecraft.getInstance().font, Component.translatable(action == ContainerActions.SORT
                                 ? "gui.lofty_safe_protection.sort" : "gui.lofty_safe_protection.deposit_matching"), mouseX, mouseY);
@@ -279,7 +303,7 @@ public final class InventoryContainerPanel {
             graphics.pose().translate(left - bounds.x(), top - bounds.y(), 0);
             renderingSlots = true;
             try {
-                String title = font.plainSubstrByWidth(container.sourceStack().getHoverName().getString(), bounds.width() - 49);
+                String title = font.plainSubstrByWidth(container.sourceStack().getHoverName().getString(), bounds.width() - (container.columns() > 0 ? 49 : 25));
                 graphics.drawString(font, title, bounds.x() - left + 5, bounds.y() - top + 6, 0x404040, false);
                 int closeX = bounds.x() + bounds.width() - 14 - left, closeY = bounds.y() + 4 - top;
                 int color = state.interactive() && bounds.closeContains(mouseX, mouseY) && at(mouseX, mouseY) == window ? 0xffaa3030 : 0xff404040;
@@ -287,7 +311,7 @@ public final class InventoryContainerPanel {
                     graphics.fill(closeX + 2 + i, closeY + 2 + i, closeX + 3 + i, closeY + 3 + i, color);
                     graphics.fill(closeX + 7 - i, closeY + 2 + i, closeX + 8 - i, closeY + 3 + i, color);
                 }
-                for (int action = 0; action <= 1; action++)
+                for (int action = 0; action <= 1 && container.columns() > 0; action++)
                     ContainerActionIcons.draw(graphics, bounds.actionX(action) - left, bounds.y() + 4 - top, action,
                             state.interactive() && at(mouseX, mouseY) == window && bounds.actionContains(action, mouseX, mouseY));
                 graphics.flush();
@@ -299,6 +323,10 @@ public final class InventoryContainerPanel {
                     if (slot == hovered) graphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, 0x80ffffff);
                     if (slot == hovered && !screen.getMenu().getCarried().isEmpty() && !slot.mayPlace(screen.getMenu().getCarried()))
                         ContainerActionIcons.outline(graphics, slot.x, slot.y, 0xffe34c4c);
+                }
+                for (int tank = 0; tank < container.fluids().slots(); tank++) {
+                    FluidSlotRenderer.draw(graphics, bounds.fluidX(tank) - left, bounds.fluidY(container.rows()) - top,
+                            container.fluidContents().fluid(tank), container.fluids().capacity());
                 }
                 graphics.flush();
             } finally { renderingSlots = false; graphics.pose().popPose(); graphics.disableScissor(); }

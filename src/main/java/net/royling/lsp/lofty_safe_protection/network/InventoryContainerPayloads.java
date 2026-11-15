@@ -8,6 +8,14 @@ import net.royling.lsp.lofty_safe_protection.data.SafeBoxManager;
 public final class InventoryContainerPayloads {
     private InventoryContainerPayloads() {}
 
+    public record FluidTransferPayload(int menuId, int sourceSlot, int tank, boolean deposit) implements CustomPacketPayload {
+        public static final Type<FluidTransferPayload> TYPE = new Type<>(SafeBoxManager.id("container_fluid_transfer"));
+        public static final StreamCodec<FriendlyByteBuf, FluidTransferPayload> CODEC = StreamCodec.of(
+                (buffer, payload) -> { buffer.writeVarInt(payload.menuId()); buffer.writeVarInt(payload.sourceSlot()); buffer.writeVarInt(payload.tank()); buffer.writeBoolean(payload.deposit()); },
+                buffer -> new FluidTransferPayload(buffer.readVarInt(), buffer.readVarInt(), buffer.readVarInt(), buffer.readBoolean()));
+        @Override public Type<FluidTransferPayload> type() { return TYPE; }
+    }
+
     public record ContainerActionPayload(int menuId, int sourceSlot, int action) implements CustomPacketPayload {
         public static final Type<ContainerActionPayload> TYPE = new Type<>(SafeBoxManager.id("container_action"));
         public static final StreamCodec<FriendlyByteBuf, ContainerActionPayload> CODEC = StreamCodec.of(

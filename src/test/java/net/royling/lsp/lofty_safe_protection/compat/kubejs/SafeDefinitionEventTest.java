@@ -12,6 +12,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class SafeDefinitionEventTest {
     @Test
+    void javascriptCanDefineFluidOnlyContainers() {
+        var containers = new HashMap<ResourceLocation, InventoryContainerDefinition>();
+        var context = new ContextFactory().enter();
+        var scope = context.initStandardObjects();
+        ScriptableObject.putProperty(scope, "event", context.javaToJS(new SafeDefinitionEvent(new HashMap<>(), containers), scope), context);
+        context.evaluateString(scope, "event.addCustomContainer('test:tank', 'minecraft:textures/item/bucket.png', 0, 0, {fluids: {slots: 4, capacity: 4000}});", "fluid-test", 1, null);
+        var definition = containers.get(ResourceLocation.parse("test:tank"));
+        assertNotNull(definition);
+        assertEquals(0, definition.columns());
+        assertEquals(4, definition.fluids().slots());
+        assertEquals(4000, definition.fluids().capacity());
+        assertEquals(definition, InventoryContainerDefinition.parse(definition.id(), definition.toJson()));
+    }
+
+    @Test
     void javascriptOptionsAndOptionalArgumentsAreConverted() {
         var boxes = new HashMap<ResourceLocation, SafeBoxManager.Definition>();
         var containers = new HashMap<ResourceLocation, InventoryContainerDefinition>();

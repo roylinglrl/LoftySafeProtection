@@ -60,3 +60,6 @@ SICC 收纳包是仓库中的可选脚本示例，展示如何为金属粒、染
 多人游戏需要客户端与服务端均安装本模组。JEI 和 KubeJS 为可选组件。
 
 [GitHub 源码与说明](https://github.com/roylinglrl/LoftySafeProtection) · [问题反馈](https://github.com/roylinglrl/LoftySafeProtection/issues)
+
+
+背包内容器支持可配置流体槽，默认液体容器拥有两个槽、每槽四桶。流体槽背景固定 16×64 像素，可用桶或兼容储液物品左键存入、右键取出。配置方式见 [流体储存说明](https://github.com/roylinglrl/LoftySafeProtection/blob/main/docs/fluid-storage.md)。

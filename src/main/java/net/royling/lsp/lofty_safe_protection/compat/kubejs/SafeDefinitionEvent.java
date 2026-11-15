@@ -56,6 +56,7 @@ public final class SafeDefinitionEvent implements KubeEvent {
         json.add("capacity", capacity);
         if (options.has("filter")) json.add("filter", options.get("filter"));
         if (options.has("experience")) json.add("experience", options.get("experience"));
+        if (options.has("fluids")) json.add("fluids", options.get("fluids"));
         return json;
     }
 }

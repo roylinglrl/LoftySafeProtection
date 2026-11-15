@@ -6,6 +6,7 @@ public final class InventoryContainerPanelState {
     private int sourceSlot = -1;
     private int columns;
     private int rows;
+    private int fluidSlots;
     private boolean moved;
     private float progress;
 
@@ -19,7 +20,11 @@ public final class InventoryContainerPanelState {
     }
 
     public void update(int slot, int slotX, int slotY, int columns, int rows, int screenWidth, int screenHeight, long now) {
-        if (slot < 0 || columns < 1 || rows < 1) {
+        update(slot, slotX, slotY, columns, rows, 0, screenWidth, screenHeight, now);
+    }
+
+    public void update(int slot, int slotX, int slotY, int columns, int rows, int fluidSlots, int screenWidth, int screenHeight, long now) {
+        if (slot < 0 || ((columns < 1 || rows < 1) && fluidSlots < 1)) {
             reset();
             return;
         }
@@ -31,14 +36,15 @@ public final class InventoryContainerPanelState {
         }
         this.columns = columns;
         this.rows = rows;
-        bounds = moved ? InventoryContainerPanelLayout.place(bounds.x(), bounds.y(), columns, rows, screenWidth, screenHeight)
-                : InventoryContainerPanelLayout.besideSlot(slotX, slotY, columns, rows, screenWidth, screenHeight);
+        this.fluidSlots = fluidSlots;
+        bounds = moved ? InventoryContainerPanelLayout.place(bounds.x(), bounds.y(), columns, rows, fluidSlots, screenWidth, screenHeight)
+                : InventoryContainerPanelLayout.besideSlot(slotX, slotY, columns, rows, fluidSlots, screenWidth, screenHeight);
         progress = animation.value(now);
     }
 
     public void move(int x, int y, int screenWidth, int screenHeight) {
         if (!interactive()) return;
-        bounds = InventoryContainerPanelLayout.place(x, y, columns, rows, screenWidth, screenHeight);
+        bounds = InventoryContainerPanelLayout.place(x, y, columns, rows, fluidSlots, screenWidth, screenHeight);
         moved = true;
     }
 
@@ -46,6 +52,7 @@ public final class InventoryContainerPanelState {
         sourceSlot = -1;
         columns = 0;
         rows = 0;
+        fluidSlots = 0;
         bounds = null;
         moved = false;
         progress = 0;

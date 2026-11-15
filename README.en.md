@@ -68,6 +68,10 @@ Contents are stored in the container item. Portable containers follow normal ite
 
 The mod includes a **4×4 Map Pouch** for empty and filled maps. This repository also includes a **5×5 SICC Pouch KubeJS example** for nuggets, dyes, dusts, paper, banner patterns, smithing templates, and enchanted books.
 
+## Fluid Storage
+
+Portable containers can provide fluid tanks alongside item storage or as fluid-only containers. The included Fluid Container has two tanks holding four buckets each. Tank backgrounds stay 16×64 pixels, and panels widen to fit them. Left-click to deposit from the cursor item and right-click to withdraw. Water, lava, milk, and compatible NeoForge fluid items are supported. See [fluid configuration and KubeJS examples](docs/fluid-storage.en.md).
+
 ## Inventory Convenience
 
 - **Content previews:** hold Shift while hovering over a portable container to view its grid at approximately 50% scale. Equipped safe boxes also support previews.

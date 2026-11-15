@@ -19,17 +19,31 @@ public final class InventoryContainerPanelLayout {
             return mouseX >= actionX(action) && mouseX < actionX(action) + 10 && mouseY >= y + 4 && mouseY < y + 14;
         }
         public int slotY(int cell) { return y + 21 + cell / 9 * 18; }
+        public int fluidX(int tank) { return x + 5 + tank * 20; }
+        public int fluidY(int rows) { return y + 21 + (rows > 0 ? rows * 18 + 4 : 0); }
+        public boolean fluidContains(int tank, int rows, double mouseX, double mouseY) {
+            return mouseX >= fluidX(tank) && mouseX < fluidX(tank) + 16
+                    && mouseY >= fluidY(rows) && mouseY < fluidY(rows) + 64;
+        }
     }
 
     public static Bounds place(int x, int y, int columns, int rows, int screenWidth, int screenHeight) {
-        int width = Math.max(80, columns * 18 + 8);
-        int height = rows * 18 + 24;
+        return place(x, y, columns, rows, 0, screenWidth, screenHeight);
+    }
+
+    public static Bounds place(int x, int y, int columns, int rows, int fluidSlots, int screenWidth, int screenHeight) {
+        int width = Math.max(fluidSlots > 0 ? 96 : 80, Math.max(columns * 18 + 8, fluidSlots * 20 + 6));
+        int height = rows * 18 + 24 + (fluidSlots > 0 ? 65 + (rows > 0 ? 4 : 0) : 0);
         return new Bounds(Math.max(0, Math.min(x, screenWidth - width)),
                 Math.max(0, Math.min(y, screenHeight - height)), width, height);
     }
 
     public static Bounds besideSlot(int slotX, int slotY, int columns, int rows, int screenWidth, int screenHeight) {
         return place(slotX + 18, slotY, columns, rows, screenWidth, screenHeight);
+    }
+
+    public static Bounds besideSlot(int slotX, int slotY, int columns, int rows, int fluidSlots, int screenWidth, int screenHeight) {
+        return place(slotX + 18, slotY, columns, rows, fluidSlots, screenWidth, screenHeight);
     }
 
     public static Bounds frame(Bounds target, float progress) {

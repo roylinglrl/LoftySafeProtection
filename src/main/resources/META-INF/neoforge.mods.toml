@@ -12,10 +12,10 @@ logoFile="icon.png"
 logoBlur=false
 description='''
 为玩家提供死亡后保留的安全箱，以及可在物品栏中右键打开的收纳容器。
-支持经验储存、多窗口管理、内容预览、一键整理、存入同类物品，以及数据包和 KubeJS 自定义定义。
+支持经验与流体储存、多窗口管理、内容预览、一键整理、存入同类物品，以及数据包和 KubeJS 自定义定义。
 
 Protect valuables with safe boxes that retain their contents and stored XP on death.
-Open portable containers in draggable inventory windows, preview contents, sort items, and deposit matching stacks.
+Open portable containers with item and fluid storage in draggable inventory windows, preview contents, sort items, and deposit matching stacks.
 Customize storage through JSON data packs and KubeJS 7, with JEI exclusion areas for storage panels.
 '''
 [[dependencies.lofty_safe_protection]]

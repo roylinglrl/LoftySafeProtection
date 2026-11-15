@@ -84,6 +84,11 @@ public final class InventoryContainerScreenEvents {
             event.setCanceled(true);
             return;
         }
+        if (InventoryContainerPanel.pressFluid(x, y, button)) {
+            suppressedRelease = button;
+            event.setCanceled(true);
+            return;
+        }
         if (InventoryContainerPanel.contains(x, y)) {
             if (InventoryContainerPanel.slotAt(x, y) == null) {
                 suppressedRelease = button;

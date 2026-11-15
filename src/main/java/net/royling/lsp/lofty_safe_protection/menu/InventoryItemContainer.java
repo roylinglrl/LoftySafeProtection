@@ -13,6 +13,9 @@ import net.minecraft.world.item.component.ItemContainerContents;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerDefinition;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
 import net.royling.lsp.lofty_safe_protection.storage.InventoryContainerBinding;
+import net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidContents;
+import net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidHandler;
+import net.royling.lsp.lofty_safe_protection.fluid.FluidStorageSettings;
 
 public final class InventoryItemContainer extends SimpleContainer {
     private final Player owner;
@@ -35,6 +38,14 @@ public final class InventoryItemContainer extends SimpleContainer {
     public int sourceSlot() { return sourceSlot; }
     public int columns() { return columns; }
     public int rows() { return rows; }
+    public FluidStorageSettings fluids() { return ContainerFluidHandler.layout(sourceStack()); }
+    public ContainerFluidContents fluidContents() { return ContainerFluidHandler.contents(sourceStack()); }
+    public boolean storeFluids(ContainerFluidContents contents) {
+        if (!(owner instanceof ServerPlayer) || !isOpen() || binding == null) return false;
+        if (binding.writeFluids(contents)) return true;
+        close();
+        return false;
+    }
     public void syncSourceSlot(int value) { sourceSlot = value; }
     public void syncColumns(int value) { columns = value; }
     public void syncRows(int value) { rows = value; }

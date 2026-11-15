@@ -11,16 +11,21 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
+import net.royling.lsp.lofty_safe_protection.fluid.FluidStorageSettings;
 
 public record InventoryContainerDefinition(ResourceLocation id, String translationKey,
         ResourceLocation texture, int columns, int rows, boolean whitelist,
-        Set<ResourceLocation> items, Set<ResourceLocation> tags) {
+        Set<ResourceLocation> items, Set<ResourceLocation> tags, FluidStorageSettings fluids) {
+    public InventoryContainerDefinition(ResourceLocation id, String translationKey, ResourceLocation texture,
+            int columns, int rows, boolean whitelist, Set<ResourceLocation> items, Set<ResourceLocation> tags) {
+        this(id, translationKey, texture, columns, rows, whitelist, items, tags, FluidStorageSettings.DISABLED);
+    }
     public Component title() {
         return Component.translatable(translationKey);
     }
 
     public boolean accepts(ItemStack stack) {
-        if (stack.isEmpty() || !stack.canFitInsideContainerItems()) return false;
+        if (columns == 0 || rows == 0 || stack.isEmpty() || !stack.canFitInsideContainerItems()) return false;
         boolean matches = items.contains(BuiltInRegistries.ITEM.getKey(stack.getItem()))
                 || tags.stream().anyMatch(id -> stack.is(TagKey.create(Registries.ITEM, id)));
         return whitelist == matches;
@@ -36,16 +41,18 @@ public record InventoryContainerDefinition(ResourceLocation id, String translati
         String key = translationKey.getAsString();
         ResourceLocation texture = ResourceLocation.parse(json.has("texture")
                 ? json.get("texture").getAsString() : "minecraft:textures/item/bundle.png");
+        FluidStorageSettings fluids = FluidStorageSettings.parse(json);
         JsonObject capacity = json.getAsJsonObject("capacity");
-        int columns = capacity.get("columns").getAsBigDecimal().intValueExact();
-        int rows = capacity.get("rows").getAsBigDecimal().intValueExact();
-        if (columns < 1 || columns > 9 || rows < 1 || rows > 6)
-            throw new IllegalArgumentException("capacity must be 1..9 columns by 1..6 rows");
+        int columns = capacity == null ? 0 : capacity.get("columns").getAsBigDecimal().intValueExact();
+        int rows = capacity == null ? 0 : capacity.get("rows").getAsBigDecimal().intValueExact();
+        boolean itemStorage = columns >= 1 && columns <= 9 && rows >= 1 && rows <= 6;
+        if (!itemStorage && !(columns == 0 && rows == 0 && fluids.enabled()))
+            throw new IllegalArgumentException("capacity must be 1..9 columns by 1..6 rows, or zero for fluid-only storage");
         JsonObject filter = json.has("filter") ? json.getAsJsonObject("filter") : new JsonObject();
         String mode = filter.has("mode") ? filter.get("mode").getAsString() : "blacklist";
         if (!mode.equals("whitelist") && !mode.equals("blacklist")) throw new IllegalArgumentException("invalid filter mode");
         return new InventoryContainerDefinition(id, key, texture, columns, rows,
-                mode.equals("whitelist"), ids(filter, "items"), ids(filter, "tags"));
+                mode.equals("whitelist"), ids(filter, "items"), ids(filter, "tags"), fluids);
     }
 
     private static Set<ResourceLocation> ids(JsonObject json, String key) {
@@ -71,6 +78,7 @@ public record InventoryContainerDefinition(ResourceLocation id, String translati
         filter.add("items", itemIds);
         filter.add("tags", tagIds);
         json.add("filter", filter);
+        if (fluids.enabled()) json.add("fluids", fluids.toJson());
         return json;
     }
 }

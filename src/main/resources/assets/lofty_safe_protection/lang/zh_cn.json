@@ -17,5 +17,9 @@
   "tooltip.lofty_safe_protection.incompatible": "该物品不兼容安全箱",
   "tooltip.lofty_safe_protection.usage": "已用：%s/%s",
   "gui.lofty_safe_protection.sort": "整理",
-  "gui.lofty_safe_protection.deposit_matching": "存入同类物品"
+  "gui.lofty_safe_protection.deposit_matching": "存入同类物品",
+  "item.lofty_safe_protection.fluid_container": "液体容器",
+  "tooltip.lofty_safe_protection.fluid_capacity": "流体容量：%s 槽 × %s mB",
+  "tooltip.lofty_safe_protection.fluid_empty": "空",
+  "tooltip.lofty_safe_protection.fluid_amount": "%s / %s mB"
 }

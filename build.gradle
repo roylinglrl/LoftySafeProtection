@@ -99,3 +99,33 @@ tasks.withType(Test).configureEach {
         locations.collect { new File(isolatedTestClasses, "runtime/${it.asFile.name}") }
     }) + (sourceSets.test.runtimeClasspath - sourceSets.main.output - sourceSets.test.output - stagedTestDependencies)
 }
+
+if (project.hasProperty('fluidCheck')) {
+    neoForge {
+        mods { lofty_safe_protection { sourceSet sourceSets.test } }
+        runs.server {
+            gameDirectory = file('build/fluid-game')
+            systemProperty 'lsp.fluidCheck', 'true'
+            systemProperty 'lsp.testProjectDir', projectDir.absolutePath
+        }
+    }
+    tasks.register('prepareFluidServerCheck') {
+        dependsOn 'testClasses'
+        doLast {
+            def game = file('build/fluid-game')
+            game.mkdirs()
+            copy { from 'examples/kubejs'; into new File(game, 'kubejs') }
+            new File(game, 'eula.txt').text = 'eula=true\n'
+            new File(game, 'server.properties').text = 'online-mode=false\nserver-ip=127.0.0.1\nserver-port=0\nlevel-type=minecraft:flat\ngenerator-settings={"layers":[{"block":"minecraft:bedrock","height":1},{"block":"minecraft:dirt","height":2},{"block":"minecraft:grass_block","height":1}],"biome":"minecraft:plains","lakes":false,"features":false}\ngenerate-structures=false\nspawn-protection=0\nmax-tick-time=-1\n'
+            delete file('build/reports/fluid-server/result.txt')
+        }
+    }
+    tasks.named('runServer') { dependsOn 'prepareFluidServerCheck' }
+    tasks.register('verifyFluidServer') {
+        dependsOn 'runServer'
+        doLast {
+            def report = file('build/reports/fluid-server/result.txt')
+            if (!report.isFile() || !report.text.startsWith('PASS:')) throw new GradleException('Fluid server verification did not pass')
+        }
+    }
+}

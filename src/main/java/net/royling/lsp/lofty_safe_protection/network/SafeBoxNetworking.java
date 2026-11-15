@@ -12,7 +12,7 @@ public final class SafeBoxNetworking {
     private SafeBoxNetworking() {}
 
     public static void registerPayloadHandlers(RegisterPayloadHandlersEvent event) {
-        var registrar = event.registrar("7");
+        var registrar = event.registrar("8");
         InventoryContainerNetworking.register(registrar);
         registrar.playToServer(SafeBoxPayloads.ExperienceTransferPayload.TYPE, SafeBoxPayloads.ExperienceTransferPayload.CODEC,
                 (payload, context) -> context.enqueueWork(() -> {

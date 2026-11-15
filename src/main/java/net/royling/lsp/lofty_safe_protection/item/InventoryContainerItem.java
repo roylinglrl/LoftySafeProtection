@@ -33,8 +33,12 @@ public final class InventoryContainerItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
         var contents = ContainerContentsSummary.fromItem(stack);
         if (contents != null) {
-            lines.add(SafeBoxTooltips.capacity(contents.rows(), contents.columns()));
-            lines.add(SafeBoxTooltips.usage(contents.used(), contents.capacity()));
+            if (contents.capacity() > 0) {
+                lines.add(SafeBoxTooltips.capacity(contents.rows(), contents.columns()));
+                lines.add(SafeBoxTooltips.usage(contents.used(), contents.capacity()));
+            }
+            if (contents.fluids().enabled()) lines.add(Component.translatable("tooltip.lofty_safe_protection.fluid_capacity",
+                    contents.fluids().slots(), contents.fluids().capacity()));
         }
     }
 }

@@ -7,8 +7,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.royling.lsp.lofty_safe_protection.data.InventoryContainerManager;
+import net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidHandler;
+import net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidContents;
+import net.royling.lsp.lofty_safe_protection.fluid.FluidStorageSettings;
 
-public record ContainerContentsSummary(int columns, int rows, List<ItemStack> items) {
+public record ContainerContentsSummary(int columns, int rows, List<ItemStack> items,
+        FluidStorageSettings fluids, ContainerFluidContents fluidContents) {
+    public ContainerContentsSummary(int columns, int rows, List<ItemStack> items) {
+        this(columns, rows, items, FluidStorageSettings.DISABLED, ContainerFluidContents.EMPTY);
+    }
     public int used() { return (int) items.stream().filter(stack -> !stack.isEmpty()).count(); }
     public int capacity() { return columns * rows; }
 
@@ -28,6 +35,6 @@ public record ContainerContentsSummary(int columns, int rows, List<ItemStack> it
             items.add(item);
             if (!item.isEmpty()) { columns = Math.max(columns, cell % 9 + 1); rows = Math.max(rows, cell / 9 + 1); }
         }
-        return new ContainerContentsSummary(columns, rows, List.copyOf(items));
+        return new ContainerContentsSummary(columns, rows, List.copyOf(items), ContainerFluidHandler.layout(stack), ContainerFluidHandler.contents(stack));
     }
 }

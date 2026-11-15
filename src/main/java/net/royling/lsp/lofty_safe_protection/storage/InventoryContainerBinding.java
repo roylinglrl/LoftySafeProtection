@@ -6,6 +6,8 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.royling.lsp.lofty_safe_protection.fluid.ContainerFluidContents;
+import net.royling.lsp.lofty_safe_protection.registry.SafeBoxDataComponents;
 
 public final class InventoryContainerBinding {
     private final Slot source;
@@ -29,6 +31,18 @@ public final class InventoryContainerBinding {
             tag.putInt("ContainerColumns", columns);
             tag.putInt("ContainerRows", rows);
         });
+        return commit(updated);
+    }
+
+    public boolean writeFluids(ContainerFluidContents contents) {
+        if (!matches()) return false;
+        ItemStack updated = source.getItem().copy();
+        if (contents.isEmpty()) updated.remove(SafeBoxDataComponents.FLUID_CONTENTS.get());
+        else updated.set(SafeBoxDataComponents.FLUID_CONTENTS.get(), contents);
+        return commit(updated);
+    }
+
+    private boolean commit(ItemStack updated) {
         snapshot = updated.copy();
         source.set(updated);
         source.setChanged();

@@ -1,0 +1,9 @@
+{
+  "id": "lofty_safe_protection:fluid_container",
+  "translation_key": "item.lofty_safe_protection.fluid_container",
+  "texture": "minecraft:textures/item/bucket.png",
+  "fluids": {
+    "slots": 2,
+    "capacity": 4000
+  }
+}
