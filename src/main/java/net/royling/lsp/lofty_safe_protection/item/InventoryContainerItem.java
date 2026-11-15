@@ -30,11 +30,11 @@ public final class InventoryContainerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> lines, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay display, java.util.function.Consumer<Component> lines, TooltipFlag flag) {
         var contents = ContainerContentsSummary.fromItem(stack);
         if (contents != null) {
-            lines.add(SafeBoxTooltips.capacity(contents.rows(), contents.columns()));
-            lines.add(SafeBoxTooltips.usage(contents.used(), contents.capacity()));
+            lines.accept(SafeBoxTooltips.capacity(contents.rows(), contents.columns()));
+            lines.accept(SafeBoxTooltips.usage(contents.used(), contents.capacity()));
         }
     }
 }

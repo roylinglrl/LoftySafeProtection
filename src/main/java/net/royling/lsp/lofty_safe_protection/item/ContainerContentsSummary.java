@@ -19,8 +19,8 @@ public record ContainerContentsSummary(int columns, int rows, List<ItemStack> it
         var tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
         int columns = definition.columns(), rows = definition.rows();
         if (contents.nonEmptyItems().iterator().hasNext()) {
-            if (tag.getInt("ContainerColumns") >= 1 && tag.getInt("ContainerColumns") <= 9) columns = tag.getInt("ContainerColumns");
-            if (tag.getInt("ContainerRows") >= 1 && tag.getInt("ContainerRows") <= 6) rows = tag.getInt("ContainerRows");
+            if (tag.getIntOr("ContainerColumns", 0) >= 1 && tag.getIntOr("ContainerColumns", 0) <= 9) columns = tag.getIntOr("ContainerColumns", 0);
+            if (tag.getIntOr("ContainerRows", 0) >= 1 && tag.getIntOr("ContainerRows", 0) <= 6) rows = tag.getIntOr("ContainerRows", 0);
         }
         List<ItemStack> items = new ArrayList<>();
         for (int cell = 0; cell < 54; cell++) {

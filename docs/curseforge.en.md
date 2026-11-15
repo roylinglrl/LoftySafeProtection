@@ -42,21 +42,24 @@ Portable container contents are saved in the item and follow normal item death-d
 
 Define safe boxes and portable containers through JSON data packs. Configure IDs, textures, translation keys, rectangular capacities, and item ID or item tag whitelists and blacklists. Experience storage and capacity are configurable for each safe box.
 
-Optionally install **KubeJS 7** and use `SafeEvents.definitions` to add, replace, or remove definitions, including those supplied by other data packs.
+Optionally install **KubeJS 8** and use `SafeEvents.definitions` to add, replace, or remove definitions, including those supplied by other data packs.
 
 **Visit GitHub for working definition examples:**
 
-- [Safe box JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
-- [Map Pouch JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/main/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
+- [Safe box JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/safeboxes/case_2x4.json)
+- [Map Pouch JSON example](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/src/main/resources/data/lofty_safe_protection/inventory_containers/map_pouch.json)
 - [5×5 SICC Pouch KubeJS example](https://github.com/roylinglrl/LoftySafeProtection/tree/main/examples/kubejs)
-- [Full configuration and usage documentation](https://github.com/roylinglrl/LoftySafeProtection/blob/main/README.en.md)
+- [Full configuration and usage documentation](https://github.com/roylinglrl/LoftySafeProtection/blob/neoforge/26.1.2/README.en.md)
 
 The SICC Pouch is an optional repository example demonstrating dedicated storage rules for nuggets, dyes, dusts, paper, banner patterns, smithing templates, and enchanted books.
 
 ## Requirements
 
-**Minecraft 1.21.1 · NeoForge 21.1.265 or newer for Minecraft 1.21.1 · Java 21**
+**Minecraft 26.1.2 · NeoForge 26.1.2.112 or newer for Minecraft 26.1.2 · Java 25**
 
 Install the mod on both the client and server for multiplayer. JEI and KubeJS are optional.
 
 [Source and documentation](https://github.com/roylinglrl/LoftySafeProtection) · [Report an issue](https://github.com/roylinglrl/LoftySafeProtection/issues)
+
+
+Upstream KubeJS 8 currently publishes builds only for Minecraft 26.1.2. This branch preserves the same scripting API; 26.1, 26.1.1, 26.2, and 26.3 require matching upstream builds before installation compatibility can be verified.

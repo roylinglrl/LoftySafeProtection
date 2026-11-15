@@ -68,8 +68,8 @@ public final class InventoryItemContainer extends SimpleContainer {
         sourceSlot = slot;
         contents.copyInto(getItems());
         CompoundTag tag = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY).copyTag();
-        columns = isEmpty() ? definition.columns() : tag.getInt("ContainerColumns");
-        rows = isEmpty() ? definition.rows() : tag.getInt("ContainerRows");
+        columns = isEmpty() ? definition.columns() : tag.getIntOr("ContainerColumns", 0);
+        rows = isEmpty() ? definition.rows() : tag.getIntOr("ContainerRows", 0);
         if (columns < 1 || columns > 9) columns = definition.columns();
         if (rows < 1 || rows > 6) rows = definition.rows();
         for (int cell = 0; cell < 54; cell++) if (!getItem(cell).isEmpty()) {
